@@ -295,7 +295,6 @@ if GLOBAL.TheNet:GetServerGameMode() == "" then
 		Asset("ANIM", "anim/tree_leaf_trunk_build.zip"),
 		Asset("ANIM", "anim/tree_leaf_poison_build.zip"),
 
-		-- Asset("ANIM", "anim/crow.zip"),
 		Asset("ANIM", "anim/puffin.zip"),
         Asset("ANIM", "anim/puffin_build.zip"),
 

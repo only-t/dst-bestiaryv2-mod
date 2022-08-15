@@ -4,9 +4,7 @@ description = [[The Bestiary adds a new book to Don't Starve Together with all t
 If you want to have all the information from the start disable Discoverable Mobs in the configurations!
 If you want to be able to open the bestiary without using the book disable Bestiary as an Item in the configurations!
 
-Current version: 1.1.0 󰀔
-- Killing bosses will now unlock all information about that boss for every nearby player
-- Added a configuration option to allow the bestiary to be opened using a book or a widget (left side of the inventory)
+Current version: 2.0.0 󰀔
 - ONLY IF [API] Mods In Menu IS ENABLED: Added the Bestiary to the main manu (located in the Compendium)
 ]]
 author = "-т-"
