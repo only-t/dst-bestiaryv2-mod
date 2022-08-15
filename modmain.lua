@@ -21,4 +21,9 @@ modimport("init/init_desc")
 
 --\/ EXTERNAL CODE \/--
 
+modimport("scripts/addbestiaryaction")
+modimport("scripts/addstates")
+modimport("scripts/bestiarypopup")
+modimport("scripts/bestiaryhud")
+
 --/\ EXTERNAL CODE /\--
