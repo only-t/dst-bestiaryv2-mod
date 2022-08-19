@@ -1,7 +1,58 @@
 Assets = {
 	Asset("ATLAS", "images/bestiary.xml"),
 	Asset("IMAGE", "images/bestiary.tex"),
-	Asset("ANIM", "anim/bestiary.zip")
+	Asset("ANIM", "anim/bestiary.zip"),
+
+	Asset("ATLAS", "images/bestiary_book_cover.xml"),
+	Asset("IMAGE", "images/bestiary_book_cover.tex"),
+
+	Asset("ATLAS", "images/bestiary_page.xml"),
+	Asset("IMAGE", "images/bestiary_page.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_basic.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_basic.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_plain.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_plain.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_forest.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_forest.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_winter.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_winter.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_deciduous.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_deciduous.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_desert.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_desert.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_swamp.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_swamp.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_savanna.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_savanna.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_cave.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_cave.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_lightbulb.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_lightbulb.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_cavewilds.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_cavewilds.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_cavelunar.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_cavelunar.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_ruins.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_ruins.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_lunar.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_lunar.tex"),
+
+	Asset("ATLAS", "images/monstergrid_bg_ocean.xml"),
+	Asset("IMAGE", "images/monstergrid_bg_ocean.tex"),
 }
 
  -- Load in base game assets for mobs for usage in the compendium
