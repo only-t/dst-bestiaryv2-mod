@@ -1,6 +1,7 @@
 local Screen = require "widgets/screen"
 local Widget = require "widgets/widget"
 local ImageButton = require "widgets/imagebutton"
+local BestiaryWidget = require "widgets/bestiarywidget"
 
 local BestiaryPopupScreen = Class(Screen, function(self, owner)
     self.owner = owner
@@ -21,9 +22,9 @@ local BestiaryPopupScreen = Class(Screen, function(self, owner)
     root:SetHAnchor(ANCHOR_MIDDLE)
     root:SetVAnchor(ANCHOR_MIDDLE)
 
-	-- self.book = root:AddChild(BestiaryWidget(self.owner))
+	self.book = root:AddChild(BestiaryWidget(self.owner))
 
-	-- self.default_focus = self.book
+	self.default_focus = self.book
 
     SetAutopaused(true)
 end)

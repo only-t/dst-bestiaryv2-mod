@@ -1,8 +1,3 @@
-----						  [ Coder ]						  ----
----- 							 -т-						  ----
-----  https://forums.kleientertainment.com/profile/365042-t/  ----
-----  					  Discord: -т-#1234				  	  ----
-
 local require = GLOBAL.require
 
 GLOBAL.CHEATS_ENABLED = true
@@ -16,6 +11,7 @@ GLOBAL.BESTIARY_ITEM_CONFIG = GetModConfigData("Bestiary as an Item")
 modimport("init/init_assets")
 modimport("init/init_prefabs")
 modimport("init/init_desc")
+modimport("init/init_tuning")
 
 --/\ INIT /\--
 
