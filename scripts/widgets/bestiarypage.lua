@@ -9,8 +9,11 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 
 	self.parent_screen = owner
 
+	local page_h = 570
+	local page_w = 970
+
 	self.page = self:AddChild(Image("images/bestiary_page.xml", "bestiary_page.tex"))
-	self.page:SetSize(970, 570)
+	self.page:SetSize(page_w, page_h)
 	self.page:SetPosition(0, 40)
 
 	self.gridroot = self:AddChild(Widget("grid_root"))
@@ -19,6 +22,7 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 	local decor_area = self.gridroot:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
 
     self.monster_grid = self.gridroot:AddChild(self:CreateMonsterGrid())
+	self.monster_grid:SetItemsData(require("monsterinfo"))
 
 	local grid_w, grid_h = self.monster_grid:GetScrollRegionSize()
 	decor_area:SetPosition(0, -1)
@@ -32,7 +36,12 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 	grid_boarder:SetPosition(0, -grid_h/2 - 2)
 	grid_boarder:SetScale(1.35, -1)
 
-	self.monster_grid:SetItemsData(require("monsterinfo"))
+	local options_button_scale = 0.65
+	self.options_button = self:AddChild(ImageButton("images/bestiary_options_button.xml", "bestiary_options_button.tex"))
+	self.options_button:SetScale(options_button_scale, options_button_scale)
+	self.options_button:SetPosition(0, page_h/2 + 30)
+	self.options_button:SetNormalScale(options_button_scale, options_button_scale)
+	self.options_button:SetFocusScale(options_button_scale + 0.02, options_button_scale + 0.02)
 end)
 
 function BestiaryMonstersPage:CreateMonsterGrid()

@@ -53,6 +53,9 @@ Assets = {
 
 	Asset("ATLAS", "images/monstergrid_bg_ocean.xml"),
 	Asset("IMAGE", "images/monstergrid_bg_ocean.tex"),
+
+	Asset("ATLAS", "images/bestiary_options_button.xml"),
+	Asset("IMAGE", "images/bestiary_options_button.tex"),
 }
 
  -- Load in base game assets for mobs for usage in the compendium
