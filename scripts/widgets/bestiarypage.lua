@@ -14,25 +14,31 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 	self.page:SetPosition(0, 40)
 
 	self.gridroot = self:AddChild(Widget("grid_root"))
-    self.gridroot:SetPosition(0, -10)
+	self.gridroot:SetPosition(0, 10)
+
+	local decor_area = self.gridroot:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
 
     self.monster_grid = self.gridroot:AddChild(self:CreateMonsterGrid())
 
 	local grid_w, grid_h = self.monster_grid:GetScrollRegionSize()
+	decor_area:SetPosition(0, -1)
+	decor_area:ScaleToSize(grid_w + 20, grid_h + 2)
+
+	local grid_w, grid_h = self.monster_grid:GetScrollRegionSize()
 	local grid_boarder = self.gridroot:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
-    grid_boarder:SetPosition(0, grid_h/2)
-	grid_boarder:SetScale(1.45, 1)
+    grid_boarder:SetPosition(0, grid_h/2 + 1)
+	grid_boarder:SetScale(1.35, 1)
 	grid_boarder = self.gridroot:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
 	grid_boarder:SetPosition(0, -grid_h/2 - 2)
-	grid_boarder:SetScale(1.45, -1)
+	grid_boarder:SetScale(1.35, -1)
 
 	self.monster_grid:SetItemsData(require("monsterinfo"))
 end)
 
 function BestiaryMonstersPage:CreateMonsterGrid()
-	local row_w = 200
-    local row_h = 160
-	local framescale = 0.60
+	local row_w = 180
+    local row_h = 140
+	local framescale = 0.5
 
 	local function ScrollWidgetsCtor(context, index)
         local w = Widget("monster-cell-"..index)
@@ -84,7 +90,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 				widget.cell_root.monster:GetAnimState():SetTime(time)-- And apply it to the new cell to make the transition smooooth
 				widget.cell_root.monster:SetClickable(false)
 				widget.cell_root.monster:SetScale(data.scale and data.scale*TUNING.MONSTER_SMALL_SCALING or 1, data.scale and data.scale*TUNING.MONSTER_SMALL_SCALING or 1)
-				widget.cell_root.monster:SetPosition(0, -55)
+				widget.cell_root.monster:SetPosition(0, -40)
 
 				widget.cell_root.onlosefocusfn = function()
 					widget.cell_root.monster:GetAnimState():PlayAnimation(data.anim_idle, true)
@@ -111,29 +117,30 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			widget_width = row_w,
 			widget_height = row_h,
 			force_peek = true,
-			num_visible_rows = 2,
+			num_visible_rows = 3,
 			num_columns = 4,
 			item_ctor_fn = ScrollWidgetsCtor,
 			apply_fn = ScrollWidgetSetData,
-			scrollbar_offset = 20,
+			scrollbar_offset = 30,
 			scrollbar_height_offset = -100
 		}
 	)
 
 	grid.up_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
-	grid.up_button:SetScale(0.7)
-	grid.up_button.image:SetTint(0.7, 0.7, 0.7, 1)
+	grid.up_button:SetScale(0.8)
+	grid.up_button.image:SetTint(0.9, 0.9, 0.9, 1)
 
 	grid.down_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
-	grid.down_button:SetScale(-0.7)
-	grid.down_button.image:SetTint(0.7, 0.7, 0.7, 1)
+	grid.down_button:SetScale(-0.8)
+	grid.down_button.image:SetTint(0.9, 0.9, 0.9, 1)
 
 	grid.scroll_bar_line:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_bar.tex")
-	grid.scroll_bar_line:SetScale(1, 0.5)
+	grid.scroll_bar_line:SetScale(0.8, 0.7)
 
 	grid.position_marker:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
 	grid.position_marker.image:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
 	grid.position_marker:SetScale(0.8)
+	grid.down_button.image:SetTint(0.9, 0.9, 0.9, 1)
 
 	return grid
 end
