@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r11">
+    <folder id="0" name="bestiary_options_button">
+        <file id="0" name="bestiary_options_button/wood.png" width="238" height="262" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="1" name="bestiary_options_button/button_light.png" width="71" height="114" pivot_x="0.5" pivot_y="0.5"/>
+        <file id="2" name="bestiary_options_button/button_dark.png" width="69" height="108" pivot_x="0.5" pivot_y="0.5"/>
+    </folder>
+    <entity id="0" name="bestiary_options_button">
+        <animation id="0" name="idle_closed" length="1000" interval="100">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="wood">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="button_dark">
+                <key id="0" spin="0">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="270"/>
+                </key>
+            </timeline>
+        </animation>
+        <animation id="1" name="idle_opened" length="1000" interval="100">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="wood">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="button_dark">
+                <key id="0" spin="0">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="90"/>
+                </key>
+            </timeline>
+        </animation>
+        <animation id="2" name="open" length="500" interval="100" looping="false">
+            <mainline>
+                <key id="0" curve_type="cubic" c1="0" c2="0.995305">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                </key>
+                <key id="1" time="200">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="1" z_index="1"/>
+                </key>
+                <key id="2" time="400">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="2" z_index="1"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="wood">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+                <key id="1" time="400" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="button_dark">
+                <key id="0">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="270"/>
+                </key>
+                <key id="1" time="200">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="0"/>
+                </key>
+                <key id="2" time="400">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="90"/>
+                </key>
+            </timeline>
+        </animation>
+        <animation id="3" name="close" length="500" interval="100" looping="false">
+            <mainline>
+                <key id="0">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="0" z_index="1"/>
+                </key>
+                <key id="1" time="200">
+                    <object_ref id="0" timeline="0" key="0" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="1" z_index="1"/>
+                </key>
+                <key id="2" time="400" curve_type="cubic" c1="0.995305" c2="0.995305">
+                    <object_ref id="0" timeline="0" key="1" z_index="0"/>
+                    <object_ref id="1" timeline="1" key="2" z_index="1"/>
+                </key>
+            </mainline>
+            <timeline id="0" name="wood">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+                <key id="1" time="400" spin="0">
+                    <object folder="0" file="0" x="-1" y="-2" angle="0"/>
+                </key>
+            </timeline>
+            <timeline id="1" name="button_dark">
+                <key id="0" spin="-1">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="90"/>
+                </key>
+                <key id="1" time="200" spin="-1">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="0" scale_y="1"/>
+                </key>
+                <key id="2" time="400" spin="-1">
+                    <object folder="0" file="2" x="1.103896" y="-46.753247" angle="270"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+</spriter_data>

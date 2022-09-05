@@ -8,9 +8,14 @@ local BestiaryWidget = Class(Widget, function(self, owner)
     Widget._ctor(self, "BestiaryWidget")
 
     self.root = self:AddChild(Widget("root"))
+    self.root:SetScaleMode(SCALEMODE_PROPORTIONAL)
+    self.root:SetHAnchor(ANCHOR_MIDDLE)
+    self.root:SetVAnchor(ANCHOR_TOP)
+    self.root:SetMaxPropUpscale(MAX_HUD_SCALE)
 
     self.root.book_background = self.root:AddChild(Image("images/bestiary_book_cover.xml", "bestiary_book_cover.tex"))
     self.root.book_background:SetSize(1000, 700)
+    self.root.book_background:SetPosition(0, -400)
 
     self.root.book_background.page = self.root.book_background:AddChild(BestiaryPage(owner))
 end)

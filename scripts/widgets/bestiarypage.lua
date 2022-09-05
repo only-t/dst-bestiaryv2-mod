@@ -9,11 +9,11 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 
 	self.parent_screen = owner
 
-	local page_h = 570
-	local page_w = 970
+	self.page_h = 570
+	self.page_w = 970
 
 	self.page = self:AddChild(Image("images/bestiary_page.xml", "bestiary_page.tex"))
-	self.page:SetSize(page_w, page_h)
+	self.page:SetSize(self.page_w, self.page_h)
 	self.page:SetPosition(0, 40)
 
 	self.gridroot = self:AddChild(Widget("grid_root"))
@@ -36,12 +36,8 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner)
 	grid_boarder:SetPosition(0, -grid_h/2 - 2)
 	grid_boarder:SetScale(1.35, -1)
 
-	local options_button_scale = 0.65
-	self.options_button = self:AddChild(ImageButton("images/bestiary_options_button.xml", "bestiary_options_button.tex"))
-	self.options_button:SetScale(options_button_scale, options_button_scale)
-	self.options_button:SetPosition(0, page_h/2 + 30)
-	self.options_button:SetNormalScale(options_button_scale, options_button_scale)
-	self.options_button:SetFocusScale(options_button_scale + 0.02, options_button_scale + 0.02)
+	self.options = self:AddChild(self:CreateOptions())
+	self.options:SetPosition(0, 585)
 end)
 
 function BestiaryMonstersPage:CreateMonsterGrid()
@@ -96,7 +92,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 				widget.cell_root.monster:SetFacing(data.rotations and data.rotations[1] or FACING_NONE)
 				widget.cell_root.monster:GetAnimState():PlayAnimation(data.anim_idle, true)
 				widget.cell_root.monster:GetAnimState():Pause()
-				widget.cell_root.monster:GetAnimState():SetTime(time)-- And apply it to the new cell to make the transition smooooth
+				widget.cell_root.monster:GetAnimState():SetTime(time) -- And apply it to the new cell to make the transition smooooth
 				widget.cell_root.monster:SetClickable(false)
 				widget.cell_root.monster:SetScale(data.scale and data.scale*TUNING.MONSTER_SMALL_SCALING or 1, data.scale and data.scale*TUNING.MONSTER_SMALL_SCALING or 1)
 				widget.cell_root.monster:SetPosition(0, -40)
@@ -152,6 +148,61 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	grid.down_button.image:SetTint(0.9, 0.9, 0.9, 1)
 
 	return grid
+end
+
+function BestiaryMonstersPage:CreateOptions()
+	local root = self:AddChild(Widget("root"))
+
+	local options_button_scale = 0.5
+	root.options_button = root:AddChild(UIAnim())
+	root.options_button:GetAnimState():SetBank("bestiary_options_button")
+	root.options_button:GetAnimState():SetBuild("bestiary_options_button")
+	root.options_button:GetAnimState():PlayAnimation("idle_closed")
+	root.options_button:SetScale(options_button_scale)
+	root.options_button.is_closed = true
+
+	root.options_button.clickable = root.options_button:AddChild(ImageButton("images/bestiary_options_button.xml", "bestiary_options_button.tex"))
+	root.options_button.clickable.image:SetTint(1, 1, 1, 0)
+	root.options_button.clickable:SetNormalScale(1, 1, 1)
+	root.options_button.clickable:SetFocusScale(1, 1, 1)
+	root.options_button.clickable:SetOnClick(function()
+		if root.options_button.is_closed then
+			root.options_button:GetAnimState():PlayAnimation("open")
+			root.options_button:GetAnimState():PushAnimation("idle_opened")
+
+			root.options_button.clickable:SetClickable(false)
+			self.options:MoveTo(Vector3(0, 585, 0), Vector3(0, 585 - 400, 0), 0.4, function()
+				root.options_button.clickable:SetClickable(true)
+				root.options_button.is_closed = false
+			end)
+		else
+			root.options_button:GetAnimState():PlayAnimation("close")
+			root.options_button:GetAnimState():PushAnimation("idle_closed")
+
+			root.options_button.clickable:SetClickable(false)
+			self.options:MoveTo(Vector3(0, 585 - 400, 0), Vector3(0, 585, 0), 0.4, function()
+				root.options_button.clickable:SetClickable(true)
+				root.options_button.is_closed = true
+			end)
+		end
+	end)
+
+	root.options_button.OnGainFocus = function()
+		local pos = root.options_button:GetPosition()
+		root.options_button:SetPosition(pos.x, pos.y - 5)
+	end
+
+	root.options_button.OnLoseFocus = function()
+		local pos = root.options_button:GetPosition()
+		root.options_button:SetPosition(pos.x, pos.y + 5)
+	end
+	
+	root.options_button:SetPosition(0, -280)
+
+	root.bg = root:AddChild(Image("images/bestiary_options_bg.xml", "bestiary_options_bg.tex"))
+	root.bg:SetScale(0.5)
+
+	return root
 end
 
 -- function BestiaryMonstersPage:AddSearch()
