@@ -2,90 +2,11 @@ Assets = {
 	Asset("ATLAS", "images/bestiarybutton.xml"),
 	Asset("IMAGE", "images/bestiarybutton.tex"),
 
-	Asset("ATLAS", "images/bestiary_book_cover.xml"),
-	Asset("IMAGE", "images/bestiary_book_cover.tex"),
+	Asset("ATLAS", "images/bestiary_page_bg.xml"),
+	Asset("IMAGE", "images/bestiary_page_bg.tex"),
 
-	Asset("ATLAS", "images/bestiary_page.xml"),
-	Asset("IMAGE", "images/bestiary_page.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_basic.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_basic.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_plain.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_plain.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_forest.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_forest.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_winter.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_winter.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_deciduous.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_deciduous.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_desert.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_desert.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_swamp.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_swamp.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_savanna.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_savanna.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_cave.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_cave.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_lightbulb.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_lightbulb.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_cavewilds.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_cavewilds.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_cavelunar.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_cavelunar.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_ruins.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_ruins.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_lunar.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_lunar.tex"),
-
-	Asset("ATLAS", "images/monstergrid_bg_ocean.xml"),
-	Asset("IMAGE", "images/monstergrid_bg_ocean.tex"),
-
-	Asset("ATLAS", "images/bestiary_options_button.xml"),
-	Asset("IMAGE", "images/bestiary_options_button.tex"),
-	Asset("ANIM", "anim/bestiary_options_button.zip"),
-
-	Asset("ATLAS", "images/bestiary_options_bg.xml"),
-	Asset("IMAGE", "images/bestiary_options_bg.tex"),
-
-	Asset("ATLAS", "images/sort_rev_name.xml"),
-	Asset("IMAGE", "images/sort_rev_name.tex"),
-
-	Asset("ATLAS", "images/sort_health.xml"),
-	Asset("IMAGE", "images/sort_health.tex"),
-
-	Asset("ATLAS", "images/sort_dmg.xml"),
-	Asset("IMAGE", "images/sort_dmg.tex"),
-
-	Asset("ATLAS", "images/sort_speed.xml"),
-	Asset("IMAGE", "images/sort_speed.tex"),
-
-	Asset("ATLAS", "images/intent_aggressive.xml"),
-	Asset("IMAGE", "images/intent_aggressive.tex"),
-
-	Asset("ATLAS", "images/intent_passive.xml"),
-	Asset("IMAGE", "images/intent_passive.tex"),
-
-	Asset("ATLAS", "images/intent_neutral.xml"),
-	Asset("IMAGE", "images/intent_neutral.tex"),
-
-	Asset("ATLAS", "images/type_animal.xml"),
-	Asset("IMAGE", "images/type_animal.tex"),
-
-	Asset("ATLAS", "images/type_boss.xml"),
-	Asset("IMAGE", "images/type_boss.tex"),
+	Asset("ATLAS", "images/monstergrid_bg.xml"),
+	Asset("IMAGE", "images/monstergrid_bg.tex"),
 }
 
  -- Load in base game assets for mobs for usage in the compendium

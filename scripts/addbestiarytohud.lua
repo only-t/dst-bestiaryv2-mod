@@ -1,22 +1,22 @@
-local BestiaryPopupScreen = require("widgets/bestiarypopupscreen")
-local BestiaryButton = require("widgets/bestiarybutton")
-local Widget = require("widgets/widget")
+local BestiaryPopupScreen = require "widgets/bestiarypopupscreen"
+local Widget = require "widgets/widget"
+local BestiaryButton = require "widgets/bestiarybutton"
 
 AddClassPostConstruct("screens/playerhud", function(class)
-	class.CloseBestiaryScreen = function(self)
-		if self.bestiaryscreen then
-			if self.bestiaryscreen.inst:IsValid() then
-				GLOBAL.TheFrontEnd:PopScreen(self.bestiaryscreen)
+	class.CloseBestiaryScreen = function(class)
+		if class.bestiaryscreen then
+			if class.bestiaryscreen.inst:IsValid() then
+				GLOBAL.TheFrontEnd:PopScreen(class.bestiaryscreen)
 			end
 			
-			self.bestiaryscreen = nil
+			class.bestiaryscreen = nil
 		end
 	end
 	
-	class.OpenBestiaryScreen = function(self)
-		self:CloseBestiaryScreen()
-		self.bestiaryscreen = BestiaryPopupScreen(self.owner)
-		self:OpenScreenUnderPause(self.bestiaryscreen)
+	class.OpenBestiaryScreen = function(class)
+		class:CloseBestiaryScreen()
+		class.bestiaryscreen = BestiaryPopupScreen(class.owner)
+		class:OpenScreenUnderPause(class.bestiaryscreen)
 		
 		return true
 	end
@@ -29,17 +29,17 @@ AddClassPostConstruct("widgets/controls", function(class)
 		class.bottomleft_root:SetHAnchor(GLOBAL.ANCHOR_LEFT)
 		class.bottomleft_root:SetVAnchor(GLOBAL.ANCHOR_BOTTOM)
 		class.bottomleft_root:SetMaxPropUpscale(GLOBAL.MAX_HUD_SCALE)
-
 		class.bottomleft_root = class.bottomleft_root:AddChild(Widget("br_scale_root"))
+		class.bottomleft_root:SetScale(GLOBAL.TheFrontEnd:GetHUDScale())
 
 		class.bestiarybutton = class.bottomleft_root:AddChild(BestiaryButton(class.owner))
-		class.bestiarybutton:SetPosition(135, 50, 0)
+		class.bestiarybutton:SetPosition(90, 45, 0)
 	end
 
 	local old_SetHUDSize = class.SetHUDSize
-	class.SetHUDSize = function(self)
-		self.bottomleft_root:SetScale(GLOBAL.TheFrontEnd:GetHUDScale())
+	class.SetHUDSize = function(class)
+		class.bottomleft_root:SetScale(GLOBAL.TheFrontEnd:GetHUDScale())
 
-		old_SetHUDSize(self)
+		old_SetHUDSize(class)
 	end
 end)
