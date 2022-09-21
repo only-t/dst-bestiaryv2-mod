@@ -14,7 +14,7 @@ local BestiaryWidget = Class(Widget, function(self, owner)
     self.root:SetMaxPropUpscale(MAX_HUD_SCALE)
 
     self.root.book_background = self.root:AddChild(Image("images/bestiary_book_cover.xml", "bestiary_book_cover.tex"))
-    self.root.book_background:SetSize(1000, 700)
+    self.root.book_background:SetScale(1.2, 1.2)
     self.root.book_background:SetPosition(0, -400)
 
     self.root.book_background.page = self.root.book_background:AddChild(BestiaryPage(owner))

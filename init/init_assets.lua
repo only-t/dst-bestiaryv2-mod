@@ -1,7 +1,6 @@
 Assets = {
-	Asset("ATLAS", "images/bestiary.xml"),
-	Asset("IMAGE", "images/bestiary.tex"),
-	Asset("ANIM", "anim/bestiary.zip"),
+	Asset("ATLAS", "images/bestiarybutton.xml"),
+	Asset("IMAGE", "images/bestiarybutton.tex"),
 
 	Asset("ATLAS", "images/bestiary_book_cover.xml"),
 	Asset("IMAGE", "images/bestiary_book_cover.tex"),
@@ -60,6 +59,33 @@ Assets = {
 
 	Asset("ATLAS", "images/bestiary_options_bg.xml"),
 	Asset("IMAGE", "images/bestiary_options_bg.tex"),
+
+	Asset("ATLAS", "images/sort_rev_name.xml"),
+	Asset("IMAGE", "images/sort_rev_name.tex"),
+
+	Asset("ATLAS", "images/sort_health.xml"),
+	Asset("IMAGE", "images/sort_health.tex"),
+
+	Asset("ATLAS", "images/sort_dmg.xml"),
+	Asset("IMAGE", "images/sort_dmg.tex"),
+
+	Asset("ATLAS", "images/sort_speed.xml"),
+	Asset("IMAGE", "images/sort_speed.tex"),
+
+	Asset("ATLAS", "images/intent_aggressive.xml"),
+	Asset("IMAGE", "images/intent_aggressive.tex"),
+
+	Asset("ATLAS", "images/intent_passive.xml"),
+	Asset("IMAGE", "images/intent_passive.tex"),
+
+	Asset("ATLAS", "images/intent_neutral.xml"),
+	Asset("IMAGE", "images/intent_neutral.tex"),
+
+	Asset("ATLAS", "images/type_animal.xml"),
+	Asset("IMAGE", "images/type_animal.tex"),
+
+	Asset("ATLAS", "images/type_boss.xml"),
+	Asset("IMAGE", "images/type_boss.tex"),
 }
 
  -- Load in base game assets for mobs for usage in the compendium

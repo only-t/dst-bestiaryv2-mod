@@ -16,8 +16,8 @@ local bestiary_openstate = State{
 
 	timeline = {
 		TimeEvent(8*GLOBAL.FRAMES, function(inst)
+			inst:ShowPopUp(GLOBAL.POPUPS.BESTIARY, true)
 			inst.SoundEmitter:PlaySound("dontstarve/common/use_book")
-			inst:PerformBufferedAction()
 		end),
 	},
 
@@ -32,7 +32,7 @@ local bestiary_openstate = State{
 			if data.popup == GLOBAL.POPUPS.BESTIARY then
 				inst.sg:GoToState("bestiary_close")
 			end
-		end),
+		end)
 	},
 
 	onexit = function(inst)
@@ -91,6 +91,3 @@ local bestiary_open_clientstate = State{
 AddStategraphState("wilson", bestiary_openstate)
 AddStategraphState("wilson", bestiary_closestate)
 AddStategraphState("wilson_client", bestiary_open_clientstate)
-
-AddStategraphActionHandler("wilson", GLOBAL.ActionHandler(GLOBAL.ACTIONS.OPEN_BESTIARY, "bestiary_open"))
-AddStategraphActionHandler("wilson_client", GLOBAL.ActionHandler(GLOBAL.ACTIONS.OPEN_BESTIARY, "bestiary_open"))

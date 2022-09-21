@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Atlas>
+    <Texture filename="bestiarybutton.tex"/>
+    <Elements>
+        <Element name="button.tex" u1="0" u2="0.405088" v1="0.188235" v2="1"/>
+        <Element name="buttonfocus.tex" u1="0.407045" u2="0.812133" v1="0.188235" v2="1"/>
+    </Elements>
+    <StraightAlpha>false</StraightAlpha>
+</Atlas>
+

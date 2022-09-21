@@ -30,12 +30,12 @@ configuration_options = {
         default = true,
     },
     {
-        name = "Bestiary as an Item",
+        name = "Autopause Bestiary",
         options = {
             { description = "Yes", data = true },
             { description = "No", data = false }
         },
 
         default = true,
-    }
+    },
 }
