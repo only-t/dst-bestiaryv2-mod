@@ -4,7 +4,7 @@ local EventHandler = GLOBAL.EventHandler
 
 local bestiary_openstate = State{
 	name = "bestiary_open",
-	tags = { "doing" },
+	tags = { "doing", "busy" },
 
 	onenter = function(inst)
 		inst.components.locomotor:StopMoving()

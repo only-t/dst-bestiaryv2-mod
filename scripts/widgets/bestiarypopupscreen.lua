@@ -8,34 +8,31 @@ local BestiaryPopupScreen = Class(Screen, function(self, owner)
     self.owner = owner
 
     self.page = self:AddChild(Image("images/bestiary_page_bg.xml", "bestiary_page_bg.tex"))
+    self.page:SetScaleMode(SCALEMODE_FILLSCREEN)
     self.page:SetVRegPoint(ANCHOR_MIDDLE)
     self.page:SetHRegPoint(ANCHOR_MIDDLE)
     self.page:SetVAnchor(ANCHOR_MIDDLE)
     self.page:SetHAnchor(ANCHOR_MIDDLE)
-    self.page:SetScaleMode(SCALEMODE_FILLSCREEN)
+
+    self.bestiary = self:AddChild(BestiaryPage(self.owner, self.page))
+    self.bestiary:SetScaleMode(SCALEMODE_PROPORTIONAL)
+    self.bestiary:SetVAnchor(ANCHOR_MIDDLE)
+    self.bestiary:SetHAnchor(ANCHOR_MIDDLE)
 
     local sw, sh = self.page:GetScaledSize()
     self.page:MoveTo(Vector3(0, -sh, 0), Vector3(0, 0, 0), 0.4)
 
-    self.bestiary = self:AddChild(BestiaryPage(self.owner))
-    self.bestiary:SetScaleMode(SCALEMODE_PROPORTIONAL)
-    self.bestiary:SetHAnchor(ANCHOR_MIDDLE)
-    self.bestiary:SetVAnchor(ANCHOR_MIDDLE)
-
 	self.default_focus = self.bestiary
-    
-    self.bestiary:MoveTo(Vector3(0, -sh, 0), Vector3(0, 0, 0), 0.4)
 end)
 
 function BestiaryPopupScreen:OnDestroy()
     POPUPS.BESTIARY:Close(self.owner)
 
     local sw, sh = self.page:GetScaledSize()
+    self.bestiary:Close(sh)
     self.page:MoveTo(Vector3(0, 0, 0), Vector3(0, -sh, 0), 0.4, function()
         self:Kill()
     end)
-    
-    self.bestiary:MoveTo(Vector3(0, 0, 0), Vector3(0, -sh, 0), 0.4)
 end
 
 function BestiaryPopupScreen:OnControl(control, down)
