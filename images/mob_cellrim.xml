@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Atlas>
+    <Texture filename="mob_cellrim.tex"/>
+    <Elements>
+        <Element name="mob_cellrim_focus.tex" u1="0" u2="0.334638" v1="0.329412" v2="1"/>
+        <Element name="mob_cellrim_normal.tex" u1="0.336595" u2="0.671233" v1="0.329412" v2="1"/>
+    </Elements>
+    <StraightAlpha>false</StraightAlpha>
+</Atlas>
+

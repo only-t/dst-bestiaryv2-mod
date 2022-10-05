@@ -9,65 +9,84 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 
 	self.owner = owner
 
-	self.monstergrid_root = self:AddChild(Widget("monstergrid"))
-    self.monstergrid_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
-    self.monstergrid_root:SetVAnchor(ANCHOR_MIDDLE)
-    self.monstergrid_root:SetHAnchor(ANCHOR_LEFT)
+	self.mobgrid_root = self:AddChild(Widget("grid"))
+    self.mobgrid_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
+    self.mobgrid_root:SetVAnchor(ANCHOR_MIDDLE)
+    self.mobgrid_root:SetHAnchor(ANCHOR_LEFT)
+
+	local old_OnWallUpdate = self.mobgrid_root.inst.components.uianim.OnWallUpdate
+	self.mobgrid_root.inst.components.uianim.OnWallUpdate = function(component, dt)
+		if not component.inst:IsValid() then
+			component.inst:StopWallUpdatingComponent(component)
+
+			return
+		end
+
+		old_OnWallUpdate(component, dt)
+
+		if component.pos_t then
+			self.mobgrid_root.grid:RefreshView()
+		end
+	end
+
+	self.mobgrid_root.grid = self.mobgrid_root:AddChild(self:CreateMonsterGrid())
+
+	local grid_w, grid_h = self.mobgrid_root.grid:GetScrollRegionSize()
+	self.mobgrid_root.grid:SetScale(0.7, 0.7)
+	self.mobgrid_root.grid:SetPosition(grid_w/2 - 40, -40, 0)
 
 	local sw, sh = parentpage:GetScaledSize()
-    self.monstergrid_root:MoveTo(Vector3(0, -sh, 0), Vector3(0, 0, 0), 0.4)
+    self.mobgrid_root:MoveTo(Vector3(0, -sh, 0), Vector3(0, 0, 0), 0.4, function()
+		self.mobgrid_root.grid:RefreshView()
+	end)
 
-	self.monstergrid_root.monstergrid = self.monstergrid_root:AddChild(self:CreateMonsterGrid())
-
-	local grid_w, grid_h = self.monstergrid_root.monstergrid:GetScrollRegionSize()
-	self.monstergrid_root.monstergrid:SetScale(0.7, 0.7)
-	self.monstergrid_root.monstergrid:SetPosition(grid_w/2 - 40, -40, 0)
-
-	local grid_boarder = self.monstergrid_root.monstergrid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
-    grid_boarder:SetPosition(20, grid_h/2 + 2)
-	grid_boarder:SetScale(1.5, 1.3)
-	grid_boarder = self.monstergrid_root.monstergrid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
-	grid_boarder:SetPosition(20, -grid_h/2 - 2)
-	grid_boarder:SetScale(1.5, -1.3)
-
-	self.monstergrid_root.monstergrid.decor = self.monstergrid_root.monstergrid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
-	self.monstergrid_root.monstergrid.decor:ScaleToSize(grid_w + 20, grid_h)
-
-	self.monstergrid_root.monstergrid.decor:MoveToBack()
-
-	self.parent_default_focus = self.monstergrid_root.monstergrid
-	self.focus_forward = self.monstergrid_root.monstergrid
+	self.parent_default_focus = self.mobgrid_root.grid
+	self.focus_forward = self.mobgrid_root.grid
 end)
 
 function BestiaryMonstersPage:CreateMonsterGrid()
 	local width = 150
 	local height = 150
+	local mob_scale = 0.25
+	local cell_scale = 0.9
 	
 	local function ScrollWidgetsCtor(context, index)
-        local w = Widget("monster-cell-"..index)
+        local w = Widget("mob-cell-"..index)
 
-		w.cell_root = w:AddChild(ImageButton("images/monstergrid_bg.xml", "monstergrid_bg.tex"))
-		-- w.cell_root = w:AddChild(ImageButton(atlas, normal, focus, disabled, down, selected, scale, offset))
-		w.cell_root.normal_scale = nil
-		w.cell_root.focus_scale = nil
-		w.cell_root:ForceImageSize(width, height)
-		w.cell_root.image:SetTint(0.8, 0.8, 0.8, 1)
+		w.cell_root = w:AddChild(Widget("cell_root"))
+		w.cell_root:SetScale(0.85, 0.85)
 
-		w.cell_root.monster = w.cell_root.image:AddChild(UIAnim())
+		w.cell_root.bg = w.cell_root:AddChild(ImageButton("images/mob_cellbasicbg.xml", "mob_cellbasicbg.tex"))
+		w.cell_root.bg:SetScale(cell_scale, cell_scale, cell_scale)
+		w.cell_root.bg.normal_scale = nil
+		w.cell_root.bg.focus_scale = nil
 
-		w.cell_root:SetOnGainFocus(function()
-			self.monstergrid_root.monstergrid:OnWidgetFocus(w)
-			w.cell_root.monster:GetAnimState():Resume()
+		w.cell_root.mob_root = w.cell_root.bg:AddChild(Widget("mob_root"))
+		w.cell_root.mob_root.mob = w.cell_root.mob_root:AddChild(UIAnim())
+		w.cell_root.mob_root.mob:SetScale(mob_scale, mob_scale, mob_scale)
+		w.cell_root.mob_root.mob:SetClickable(false)
+
+		w.cell_root.bg.rim = w.cell_root.bg:AddChild(Image("images/mob_cellrim.xml", "mob_cellrim_normal.tex"))
+		w.cell_root.bg.rim:SetClickable(false)
+	
+		w.cell_root.bg:SetOnGainFocus(function()
+			self.mobgrid_root.grid:OnWidgetFocus(w)
+			w.cell_root.mob_root.mob:GetAnimState():Resume()
+
+			w.cell_root.bg.rim:SetTexture("images/mob_cellrim.xml", "mob_cellrim_focus.tex")
 		end)
 
-		w.cell_root:SetOnLoseFocus(function()
+		w.cell_root.bg:SetOnLoseFocus(function()
 			if w.data then
-				w.cell_root.monster:GetAnimState():PlayAnimation(w.data.anim_idle, true)
-				w.cell_root.monster:GetAnimState():Pause()
+				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle, true)
+				w.cell_root.mob_root.mob:GetAnimState():Pause()
 			end
+
+			w.cell_root.bg.rim:SetTexture("images/mob_cellrim.xml", "mob_cellrim_normal.tex")
 		end)
 
-		w.focus_forward = w.cell_root
+		w.focus_forward = w.cell_root.bg
+		w.cell_root.focus_forward = w.cell_root.bg
 
 		return w
     end
@@ -76,19 +95,18 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 		w.data = data
 
 		if w.data then
-			w.cell_root:Show()
-			w.cell_root.monster:Show()
+			w.cell_root.bg:Show()
+			w.cell_root.mob_root.mob:Show()
 
-			w.cell_root.monster:GetAnimState():SetBank(data.bank)
-			w.cell_root.monster:GetAnimState():SetBuild(data.build)
-			w.cell_root.monster:GetAnimState():PlayAnimation(data.anim_idle, true)
-			w.cell_root.monster:GetAnimState():Pause()
-			w.cell_root.monster:SetClickable(false)
+			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank)
+			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build)
+			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+			w.cell_root.mob_root.mob:GetAnimState():Pause()
 
 			w:Enable()
 		else
-			w.cell_root:Hide()
-			w.cell_root.monster:Hide()
+			w.cell_root.bg:Hide()
+			w.cell_root.mob_root.mob:Hide()
 
 			w:Disable()
 		end
@@ -100,7 +118,8 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			context = {  },
 			widget_width = width,
 			widget_height = height,
-			force_peek = true,
+			peek_percent = 0,
+			allow_bottom_empty_row = true,
 			num_visible_rows = 5,
 			num_columns = 5,
 			item_ctor_fn = ScrollWidgetsCtor,
@@ -124,40 +143,50 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	grid.position_marker.image:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
 	grid.position_marker:SetScale(1)
 
+	local grid_w, grid_h = grid:GetScrollRegionSize()
+	local grid_boarder = grid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
+    grid_boarder:SetPosition(20, grid_h/2 + 2)
+	grid_boarder:SetScale(1.5, 1.3)
+	grid_boarder = grid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
+	grid_boarder:SetPosition(20, -grid_h/2 - 2)
+	grid_boarder:SetScale(1.5, -1.3)
+
+	grid.decor = grid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
+	grid.decor:ScaleToSize(grid_w + 20, grid_h + 6)
+	grid.decor:MoveToBack()
+
 	local old_RefreshView = grid.RefreshView
 	grid.RefreshView = function(self)
 		old_RefreshView(self)
 
 		for i = 1, self.items_per_view do
-			local cellw, cellh = self.widgets_to_update[i].cell_root.image:GetSize() -- 171
-			local scaled_cellw, scaled_cellh = self.widgets_to_update[i].cell_root.image:GetScaledSize() -- 136.8
-
-			print(cellw)
-			print(scaled_cellw)
+			local cellimagew, cellimageh = self.widgets_to_update[i].cell_root.bg.image:GetSize()
+			local scroll_percent = self.current_scroll_pos%1
+			local hoffset = 1 - math.clamp(scroll_percent + (-(1 - cell_scale) + (1 - cell_scale)*2*scroll_percent), 0, 1)
 
 			if i >= 1 and i <= 5 then
-				local hoffset = (1 - self.current_scroll_pos%1)
+				local x = -cellimagew/2
+				local y = -cellimageh/2
+				local w = cellimagew
+				local h = cellimageh*hoffset
 
-				local x = -cellw/2 + 5
-				local y = -cellh/2 + 5
-				local w = cellw - 10
-				local h = (cellh - 10)*hoffset
+				self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
+			elseif i >= 26 and i <= 30 then
+				local x = -cellimagew/2
+				local y = -cellimageh/2 + cellimageh*hoffset
+				local w = cellimagew
+				local h = cellimageh*(1 - hoffset)
 
-				self.widgets_to_update[i].cell_root.monster:SetScissor(x, y, w, h)
-			elseif i >= 26 and i <= 35 then
-				local x = -cellw/2 + 5
-				local y = -cellh/2 + 5
-				local w = cellw - 10
-				local h = cellh - 10
-
-				self.widgets_to_update[i].cell_root.monster:SetScissor(x, y, w, h)
+				self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
+			elseif i >= 31 and i <= 35 and self.current_scroll_pos < self.end_pos - 1 then
+				self.widgets_to_update[i].cell_root.mob_root:SetScissor(0, 0, 0, 0)
 			else
-				local x = -cellw/2 + 5
-				local y = -cellh/2 + 5
-				local w = cellw - 10
-				local h = cellh - 10
+				local x = -cellimagew/2
+				local y = -cellimageh/2
+				local w = cellimagew
+				local h = cellimageh
 
-				self.widgets_to_update[i].cell_root.monster:SetScissor(x, y, w, h)
+				self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
 			end
 		end
 	end
@@ -166,7 +195,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 end
 
 function BestiaryMonstersPage:Close(height)
-    self.monstergrid_root:MoveTo(Vector3(0, 0, 0), Vector3(0, -height, 0), 0.4)
+    self.mobgrid_root:MoveTo(Vector3(0, 0, 0), Vector3(0, -height, 0), 0.4)
 end
 
 return BestiaryMonstersPage
