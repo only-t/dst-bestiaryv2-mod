@@ -4,6 +4,9 @@ Assets = {
 
 	Asset("ATLAS", "images/bestiary_page_bg.xml"),
 	Asset("IMAGE", "images/bestiary_page_bg.tex"),
+	
+	Asset("ATLAS", "images/bestiary_pointer.xml"),
+	Asset("IMAGE", "images/bestiary_pointer.tex"),
 
 	Asset("ATLAS", "images/mob_cellrim.xml"),
 	Asset("IMAGE", "images/mob_cellrim.tex"),

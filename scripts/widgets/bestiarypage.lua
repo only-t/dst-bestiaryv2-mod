@@ -8,8 +8,9 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	Widget._ctor(self, "BestiaryMonstersPage")
 
 	self.owner = owner
+	self.parentw, self.parenth = parentpage:GetScaledSize()
 
-	self.mobgrid_root = self:AddChild(Widget("grid"))
+	self.mobgrid_root = self:AddChild(Widget("mobgrid"))
     self.mobgrid_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.mobgrid_root:SetVAnchor(ANCHOR_MIDDLE)
     self.mobgrid_root:SetHAnchor(ANCHOR_LEFT)
@@ -35,19 +36,21 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	self.mobgrid_root.grid:SetScale(0.7, 0.7)
 	self.mobgrid_root.grid:SetPosition(grid_w/2 - 40, -40, 0)
 
-	local sw, sh = parentpage:GetScaledSize()
-    self.mobgrid_root:MoveTo(Vector3(0, -sh, 0), Vector3(0, 0, 0), 0.4, function()
-		self.mobgrid_root.grid:RefreshView()
-	end)
-
 	self.parent_default_focus = self.mobgrid_root.grid
 	self.focus_forward = self.mobgrid_root.grid
+
+	self.mobinfo_root = self:AddChild(Widget("mobinfo"))
+    self.mobinfo_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
+    self.mobinfo_root:SetVAnchor(ANCHOR_MIDDLE)
+    self.mobinfo_root:SetHAnchor(ANCHOR_RIGHT)
+
+	self:Open()
 end)
 
 function BestiaryMonstersPage:CreateMonsterGrid()
 	local width = 150
 	local height = 150
-	local mob_scale = 0.25
+	local mob_scale = 0.5
 	local cell_scale = 0.9
 	
 	local function ScrollWidgetsCtor(context, index)
@@ -66,14 +69,41 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 		w.cell_root.mob_root.mob:SetScale(mob_scale, mob_scale, mob_scale)
 		w.cell_root.mob_root.mob:SetClickable(false)
 
+		local cell_w, cell_h = w.cell_root.bg.image:GetSize()
+		w.cell_root.mob_root.mob:SetPosition(0, -cell_h/3, 0)
+
 		w.cell_root.bg.rim = w.cell_root.bg:AddChild(Image("images/mob_cellrim.xml", "mob_cellrim_normal.tex"))
 		w.cell_root.bg.rim:SetClickable(false)
+
+		w.cell_root.bg:SetOnClick(function()
+			self:OpenNewMobInfo()
+
+			w.cell_root.bg.pointer:SetPosition(50, -60, 0)
+			w.cell_root.bg.pointer:SetRotation(110)
+		end)
 	
 		w.cell_root.bg:SetOnGainFocus(function()
 			self.mobgrid_root.grid:OnWidgetFocus(w)
 			w.cell_root.mob_root.mob:GetAnimState():Resume()
 
 			w.cell_root.bg.rim:SetTexture("images/mob_cellrim.xml", "mob_cellrim_focus.tex")
+
+			if w.cell_root.bg.pointer == nil then
+				w.cell_root.bg.pointer = w.cell_root.bg:AddChild(Image("images/bestiary_pointer.xml", "bestiary_pointer.tex"))
+				w.cell_root.bg.pointer:SetScale(1.3, 1.3)
+				w.cell_root.bg.pointer:SetRotation(130)
+
+				w.cell_root.bg.pointer:MoveTo(Vector3(70, -80, 0), Vector3(50, -60, 0), 0.1)
+				w.cell_root.bg.pointer:RotateTo(130, 110, 0.1)
+				w.cell_root.bg.pointer:TintTo({ r = 1, g = 1, b = 1, a = 0 }, { r = 1, g = 1, b = 1, a = 1 }, 0.1)
+			else
+				w.cell_root.bg.pointer:CancelMoveTo()
+				w.cell_root.bg.pointer:CancelRotateTo()
+				w.cell_root.bg.pointer:CancelTintTo()
+				w.cell_root.bg.pointer:MoveTo(w.cell_root.bg.pointer:GetPosition(), Vector3(50, -60, 0), 0.1)
+				w.cell_root.bg.pointer:RotateTo(130, 110, 0.1)
+				w.cell_root.bg.pointer:TintTo({ r = 1, g = 1, b = 1, a = 0 }, { r = 1, g = 1, b = 1, a = 1 }, 0.1)
+			end
 		end)
 
 		w.cell_root.bg:SetOnLoseFocus(function()
@@ -83,6 +113,30 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			end
 
 			w.cell_root.bg.rim:SetTexture("images/mob_cellrim.xml", "mob_cellrim_normal.tex")
+
+			if w.cell_root.bg.pointer then
+				w.cell_root.bg.pointer:CancelMoveTo()
+				w.cell_root.bg.pointer:MoveTo(w.cell_root.bg.pointer:GetPosition(), Vector3(70, -80, 0), 0.1, function()
+					w.cell_root.bg.pointer:Kill()
+					w.cell_root.bg.pointer = nil
+				end)
+				
+				w.cell_root.bg.pointer:CancelRotateTo()
+				w.cell_root.bg.pointer:RotateTo(110, 130, 0.1)
+				
+				w.cell_root.bg.pointer:CancelTintTo()
+				w.cell_root.bg.pointer:TintTo({ r = 1, g = 1, b = 1, a = 1 }, { r = 1, g = 1, b = 1, a = 0 }, 0.1)
+			end
+		end)
+
+		w.cell_root.bg:SetOnDown(function()
+			w.cell_root.bg.pointer:CancelMoveTo()
+			w.cell_root.bg.pointer:CancelRotateTo()
+			w.cell_root.bg.pointer:CancelTintTo()
+
+			w.cell_root.bg.pointer:SetPosition(45, -50, 0)
+			w.cell_root.bg.pointer:SetTint(1, 1, 1, 1)
+			w.cell_root.bg.pointer:SetRotation(100)
 		end)
 
 		w.focus_forward = w.cell_root.bg
@@ -194,8 +248,40 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
+function BestiaryMonstersPage:OpenNewMobInfo() -- Fix needed
+	local newpage = Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_bg.tex")
+	self.mobinfo_root:AddChild(newpage)
+	newpage:SetScale(0.8, 0.6)
+
+	local page_w, page_h = newpage:GetSize()
+	newpage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.3)
+	newpage:RotateTo(100, 85, 0.3)
+
+	if self.mobinfo_root.infopage then
+		local page_w, page_h = self.mobinfo_root.infopage:GetSize()
+
+		self.mobinfo_root.infopage:SetPosition(-page_h/2 + 80, 0, 0)
+		self.mobinfo_root.infopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.3)
+		self.mobinfo_root.infopage:RotateTo(85, 110, 0.3, function()
+			self.mobinfo_root.infopage:Kill()
+			self.mobinfo_root.infopage = newpage
+		end)
+	else
+		self.mobinfo_root.infopage = newpage
+	end
+end
+
 function BestiaryMonstersPage:Close(height)
-    self.mobgrid_root:MoveTo(Vector3(0, 0, 0), Vector3(0, -height, 0), 0.4)
+	self.mobgrid_root:MoveTo(Vector3(0, 0, 0), Vector3(0, -height, 0), 0.4)
+	self.mobinfo_root:MoveTo(Vector3(0, 0, 0), Vector3(0, -height, 0), 0.4)
+end
+
+function BestiaryMonstersPage:Open()
+	self.mobgrid_root:MoveTo(Vector3(0, -self.parenth, 0), Vector3(0, 0, 0), 0.4, function()
+		self.mobgrid_root.grid:RefreshView()
+	end)
+
+	self.mobinfo_root:MoveTo(Vector3(0, -self.parenth, 0), Vector3(0, 0, 0), 0.4)
 end
 
 return BestiaryMonstersPage
