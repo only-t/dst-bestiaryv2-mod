@@ -39,7 +39,7 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	self.parent_default_focus = self.mobgrid_root.grid
 	self.focus_forward = self.mobgrid_root.grid
 
-	self.mobinfo_root = self:AddChild(Widget("mobinfo"))
+	self.mobinfo_root = self:AddChild(Widget("mobinfo_root"))
     self.mobinfo_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.mobinfo_root:SetVAnchor(ANCHOR_MIDDLE)
     self.mobinfo_root:SetHAnchor(ANCHOR_RIGHT)
@@ -248,26 +248,42 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
-function BestiaryMonstersPage:OpenNewMobInfo() -- Fix needed
-	local newpage = Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_bg.tex")
-	self.mobinfo_root:AddChild(newpage)
-	newpage:SetScale(0.8, 0.6)
+function BestiaryMonstersPage:OpenNewMobInfo()
+	if self.mobinfo_root.mobinfopage and self.mobinfo_root.mobinfopage.is_loading == true then
+		return
+	end
 
-	local page_w, page_h = newpage:GetSize()
-	newpage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.3)
-	newpage:RotateTo(100, 85, 0.3)
+	if self.mobinfo_root.mobinfopage == nil then
+		self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_bg.tex"))
+		self.mobinfo_root.mobinfopage:SetScale(0.8, 0.6)
 
-	if self.mobinfo_root.infopage then
-		local page_w, page_h = self.mobinfo_root.infopage:GetSize()
+		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:RotateTo(110, 85, 0.2, function()
+			-- self:UpdateMobInfo()
 
-		self.mobinfo_root.infopage:SetPosition(-page_h/2 + 80, 0, 0)
-		self.mobinfo_root.infopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.3)
-		self.mobinfo_root.infopage:RotateTo(85, 110, 0.3, function()
-			self.mobinfo_root.infopage:Kill()
-			self.mobinfo_root.infopage = newpage
+			self.mobinfo_root.mobinfopage.is_loading = false
 		end)
-	else
-		self.mobinfo_root.infopage = newpage
+
+		self.mobinfo_root.mobinfopage.is_loading = true
+
+		return
+	end
+
+	if self.mobinfo_root.mobinfopage then
+		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
+
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:RotateTo(85, 110, 0.2, function()
+			-- self:UpdateMobInfo()
+			
+			self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
+			self.mobinfo_root.mobinfopage:RotateTo(110, 85, 0.2, function()
+				self.mobinfo_root.mobinfopage.is_loading = false
+			end)
+		end)
+		
+		self.mobinfo_root.mobinfopage.is_loading = true
 	end
 end
 
