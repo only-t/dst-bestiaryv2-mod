@@ -13,6 +13,9 @@ Assets = {
 
 	Asset("ATLAS", "images/mob_cellbasicbg.xml"),
 	Asset("IMAGE", "images/mob_cellbasicbg.tex"),
+
+	Asset("ATLAS", "images/bestiary_mobinfo_bg.xml"),
+	Asset("IMAGE", "images/bestiary_mobinfo_bg.tex"),
 }
 
  -- Load in base game assets for mobs for usage in the compendium

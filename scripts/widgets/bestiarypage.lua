@@ -39,10 +39,21 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	self.parent_default_focus = self.mobgrid_root.grid
 	self.focus_forward = self.mobgrid_root.grid
 
+	self.mobinfo_root_xoffset = -340
 	self.mobinfo_root = self:AddChild(Widget("mobinfo_root"))
     self.mobinfo_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.mobinfo_root:SetVAnchor(ANCHOR_MIDDLE)
     self.mobinfo_root:SetHAnchor(ANCHOR_RIGHT)
+
+	self.mobinfo_root.bg_decor = self.mobinfo_root:AddChild(Image("images/bestiary_mobinfo_bg.xml", "basic_unknown.tex"))
+	self.mobinfo_root.bg_decor:SetPosition(self.mobinfo_root_xoffset + 10, 0, 0)
+	self.mobinfo_root.bg_decor:ScaleToSize(128, 128)
+	self.mobinfo_root.bg_decor:SetTint(1, 1, 1, 0.8)
+
+	local outline_decor = self.mobinfo_root:AddChild(Image("images/options.xml", "panel_frame.tex"))
+	outline_decor:SetPosition(self.mobinfo_root_xoffset + 20, 0, 0)
+	outline_decor:SetSize(740, 600)
+	outline_decor:SetRotation(90)
 
 	self:Open()
 end)
@@ -76,7 +87,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 		w.cell_root.bg.rim:SetClickable(false)
 
 		w.cell_root.bg:SetOnClick(function()
-			self:OpenNewMobInfo()
+			self:OpenNewMobInfo(w.data)
 
 			w.cell_root.bg.pointer:SetPosition(50, -60, 0)
 			w.cell_root.bg.pointer:SetRotation(110)
@@ -248,8 +259,31 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
-function BestiaryMonstersPage:OpenNewMobInfo()
+function BestiaryMonstersPage:OpenNewMobInfo(data)
 	if self.mobinfo_root.mobinfopage and self.mobinfo_root.mobinfopage.is_loading == true then
+		return
+	end
+
+	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn")
+
+	local random = math.random()
+
+	if self.mobinfo_root.mobinfopage then
+		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
+		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
+
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:RotateTo(rot, 110, 0.2, function()
+			-- self:UpdateMobInfo(data)
+			
+			self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
+			self.mobinfo_root.mobinfopage:RotateTo(110, 83 + 5*random, 0.2, function()
+				self.mobinfo_root.mobinfopage.is_loading = false
+			end)
+		end)
+		
+		self.mobinfo_root.mobinfopage.is_loading = true
+
 		return
 	end
 
@@ -259,30 +293,12 @@ function BestiaryMonstersPage:OpenNewMobInfo()
 
 		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
 		self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
-		self.mobinfo_root.mobinfopage:RotateTo(110, 85, 0.2, function()
-			-- self:UpdateMobInfo()
+		self.mobinfo_root.mobinfopage:RotateTo(110, 83 + 5*random, 0.2, function()
+			-- self:UpdateMobInfo(data)
 
 			self.mobinfo_root.mobinfopage.is_loading = false
 		end)
 
-		self.mobinfo_root.mobinfopage.is_loading = true
-
-		return
-	end
-
-	if self.mobinfo_root.mobinfopage then
-		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
-
-		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.2)
-		self.mobinfo_root.mobinfopage:RotateTo(85, 110, 0.2, function()
-			-- self:UpdateMobInfo()
-			
-			self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
-			self.mobinfo_root.mobinfopage:RotateTo(110, 85, 0.2, function()
-				self.mobinfo_root.mobinfopage.is_loading = false
-			end)
-		end)
-		
 		self.mobinfo_root.mobinfopage.is_loading = true
 	end
 end
