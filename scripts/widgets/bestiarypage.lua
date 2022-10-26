@@ -2,6 +2,8 @@ local Widget = require "widgets/widget"
 local ImageButton = require "widgets/imagebutton"
 local Image = require "widgets/image"
 local UIAnim = require "widgets/uianim"
+local Text = require "widgets/text"
+local TrueScrollList = require "widgets/truescrolllist"
 local TEMPLATES = require "widgets/redux/templates"
 
 local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
@@ -61,7 +63,7 @@ end)
 function BestiaryMonstersPage:CreateMonsterGrid()
 	local width = 150
 	local height = 150
-	local mob_scale = 0.5
+	local mob_scale = 0.35
 	local cell_scale = 0.9
 	
 	local function ScrollWidgetsCtor(context, index)
@@ -259,25 +261,79 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
+local function CreateMobPage(self)
+	local function WidgetsCtor(context, parent, scroll_list) -- TBA
+
+		-- return widgets, num_columns, widget_height, num_visible_rows, end_offset
+	end
+
+	local function UpdateWidgetsFn(context, w, data, data_index)
+		w.data = data
+
+		if w.data then
+			w.cell_root.bg:Show()
+
+			w:Enable()
+		else
+			w.cell_root.bg:Hide()
+
+			w:Disable()
+		end
+	end
+
+	local mobframe_y = 180
+
+	self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/mobinfopage.xml", "mobinfopage.tex"))
+	self.mobinfo_root.mobinfopage:SetScale(0.68, 0.6)
+
+	self.mobinfo_root.mobinfopage.scrolllist = self.mobinfo_root.mobinfopage:AddChild(TrueScrollList({  }, WidgetsCtor, UpdateWidgetsFn, 0, 0, 200, 200, 40, -150))
+
+	self.mobinfo_root.mobinfopage.scrolllist.page_decor = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
+	self.mobinfo_root.mobinfopage.scrolllist.page_decor:SetPosition(0, mobframe_y + 40, 0)
+	self.mobinfo_root.mobinfopage.scrolllist.page_decor:SetScale(1.5, 0.9)
+
+	self.mobinfo_root.mobinfopage.scrolllist.mob_bg = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/bestiary_mob_bg.xml", "bestiary_mob_bg.tex"))
+	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetPosition(3, mobframe_y, 0)
+	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetScale(0.8, 1)
+
+	local w, h = self.mobinfo_root.mobinfopage.scrolllist.mob_bg:GetSize()
+	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetScissor(-w/2, -h/2, w, h)
+
+	self.mobinfo_root.mobinfopage.scrolllist.mobframe = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
+	self.mobinfo_root.mobinfopage.scrolllist.mobframe:SetPosition(0, mobframe_y, 0)
+	self.mobinfo_root.mobinfopage.scrolllist.mobframe:SetScale(0.8, 1)
+
+	self.mobinfo_root.mobinfopage.scrolllist.mob = self.mobinfo_root.mobinfopage.scrolllist.mob_bg:AddChild(UIAnim())
+	self.mobinfo_root.mobinfopage.scrolllist.mob:SetPosition(0, -130, 0)
+	self.mobinfo_root.mobinfopage.scrolllist.mob:SetClickable(false)
+
+	self.mobinfo_root.mobinfopage.scrolllist.mobname = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Text(HEADERFONT, 92, "Unknown", UICOLOURS.BROWN_DARK))
+	self.mobinfo_root.mobinfopage.scrolllist.mobname:SetPosition(0, mobframe_y + h/2 + 70, 0)
+end
+
 function BestiaryMonstersPage:OpenNewMobInfo(data)
 	if self.mobinfo_root.mobinfopage and self.mobinfo_root.mobinfopage.is_loading == true then
 		return
 	end
 
-	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn")
-
-	local random = math.random()
+	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn") -- Only works if not auto-paused
 
 	if self.mobinfo_root.mobinfopage then
-		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
 		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
+		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
-		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-page_h/2 + 80, 0, 0), Vector3(page_h, 0, 0), 0.2)
-		self.mobinfo_root.mobinfopage:RotateTo(rot, 110, 0.2, function()
-			-- self:UpdateMobInfo(data)
-			
-			self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
-			self.mobinfo_root.mobinfopage:RotateTo(110, 83 + 5*random, 0.2, function()
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-pagew/2 + 140, 0, 0), Vector3(pagew, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:RotateTo(rot, 20, 0.2, function()
+			self:UpdateMobInfo(data)
+
+			self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 140, 0, 0), 0.2)
+			self.mobinfo_root.mobinfopage:RotateTo(20, 0, 0.2, function()
+				if math.random() <= 0.02 then
+					self.mobinfo_root.bg_decor:SetTexture("images/bestiary_mobinfo_bg.xml", "secret_"..math.random(11)..".tex")
+				elseif self.mobinfo_root.bg_decor.texture ~= "basic_unknown.tex" then
+					self.mobinfo_root.bg_decor:SetTexture("images/bestiary_mobinfo_bg.xml", "basic_unknown.tex")
+				end
+
 				self.mobinfo_root.mobinfopage.is_loading = false
 			end)
 		end)
@@ -288,19 +344,25 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 	end
 
 	if self.mobinfo_root.mobinfopage == nil then
-		self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_bg.tex"))
-		self.mobinfo_root.mobinfopage:SetScale(0.8, 0.6)
+		CreateMobPage(self)
 
-		local page_w, page_h = self.mobinfo_root.mobinfopage:GetSize()
-		self.mobinfo_root.mobinfopage:MoveTo(Vector3(page_h, 0, 0), Vector3(-page_h/2 + 80, 0, 0), 0.2)
-		self.mobinfo_root.mobinfopage:RotateTo(110, 83 + 5*random, 0.2, function()
-			-- self:UpdateMobInfo(data)
+		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 140, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:RotateTo(20, 0, 0.2, function()
 			self.mobinfo_root.mobinfopage.is_loading = false
 		end)
 
 		self.mobinfo_root.mobinfopage.is_loading = true
+
+		self:UpdateMobInfo(data)
 	end
+end
+
+function BestiaryMonstersPage:UpdateMobInfo(data)
+	self.mobinfo_root.mobinfopage.mob:GetAnimState():SetBank(data.bank)
+	self.mobinfo_root.mobinfopage.mob:GetAnimState():SetBuild(data.build)
+	self.mobinfo_root.mobinfopage.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
 end
 
 function BestiaryMonstersPage:Close(height)
