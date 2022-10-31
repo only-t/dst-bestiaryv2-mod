@@ -3,7 +3,7 @@ local ImageButton = require "widgets/imagebutton"
 local Image = require "widgets/image"
 local UIAnim = require "widgets/uianim"
 local Text = require "widgets/text"
-local TrueScrollList = require "widgets/truescrolllist"
+local TrueScrollArea = require "widgets/truescrollarea"
 local TEMPLATES = require "widgets/redux/templates"
 
 local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
@@ -261,54 +261,50 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
-local function CreateMobPage(self)
-	local function WidgetsCtor(context, parent, scroll_list) -- TBA
-
-		-- return widgets, num_columns, widget_height, num_visible_rows, end_offset
-	end
-
-	local function UpdateWidgetsFn(context, w, data, data_index)
-		w.data = data
-
-		if w.data then
-			w.cell_root.bg:Show()
-
-			w:Enable()
-		else
-			w.cell_root.bg:Hide()
-
-			w:Disable()
-		end
-	end
-
-	local mobframe_y = 180
-
+local function CreateMobPage(self, data) -- Work on proper scroll are display
 	self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/mobinfopage.xml", "mobinfopage.tex"))
 	self.mobinfo_root.mobinfopage:SetScale(0.68, 0.6)
 
-	self.mobinfo_root.mobinfopage.scrolllist = self.mobinfo_root.mobinfopage:AddChild(TrueScrollList({  }, WidgetsCtor, UpdateWidgetsFn, 0, 0, 200, 200, 40, -150))
+	local page_info = Widget("page_info")
+	local scissor_data = { x = 0, y = 0, width = 200, height = 500 }
+	local context = { widget = page_info, offset = { x = 0, y = 500/2 }, size = { w = 200, height = 500 } }
+	local scrollbar = { scroll_per_click = 20*3 }
+	self.mobinfo_root.mobinfopage.scrollarea = self.mobinfo_root.mobinfopage:AddChild(TrueScrollArea(context, scissor_data, scrollbar))
+	self.mobinfo_root.mobinfopage.scrollarea.up_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
+	self.mobinfo_root.mobinfopage.scrollarea.up_button:SetScale(0.75)
 
-	self.mobinfo_root.mobinfopage.scrolllist.page_decor = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
-	self.mobinfo_root.mobinfopage.scrolllist.page_decor:SetPosition(0, mobframe_y + 40, 0)
-	self.mobinfo_root.mobinfopage.scrolllist.page_decor:SetScale(1.5, 0.9)
+	self.mobinfo_root.mobinfopage.scrollarea.down_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
+	self.mobinfo_root.mobinfopage.scrollarea.down_button:SetScale(-0.75)
 
-	self.mobinfo_root.mobinfopage.scrolllist.mob_bg = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/bestiary_mob_bg.xml", "bestiary_mob_bg.tex"))
-	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetPosition(3, mobframe_y, 0)
-	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetScale(0.8, 1)
+	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_bar.tex")
+	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:SetScale(0.85, 1)
 
-	local w, h = self.mobinfo_root.mobinfopage.scrolllist.mob_bg:GetSize()
-	self.mobinfo_root.mobinfopage.scrolllist.mob_bg:SetScissor(-w/2, -h/2, w, h)
+	self.mobinfo_root.mobinfopage.scrollarea.position_marker:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
+	self.mobinfo_root.mobinfopage.scrollarea.position_marker:SetScale(0.75)
 
-	self.mobinfo_root.mobinfopage.scrolllist.mobframe = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
-	self.mobinfo_root.mobinfopage.scrolllist.mobframe:SetPosition(0, mobframe_y, 0)
-	self.mobinfo_root.mobinfopage.scrolllist.mobframe:SetScale(0.8, 1)
+	local mobframe_y = 180
+	
+	local page_decor = page_info:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
+	page_decor:SetPosition(0, mobframe_y + 40, 0)
+	page_decor:SetScale(1.5, 0.9)
 
-	self.mobinfo_root.mobinfopage.scrolllist.mob = self.mobinfo_root.mobinfopage.scrolllist.mob_bg:AddChild(UIAnim())
-	self.mobinfo_root.mobinfopage.scrolllist.mob:SetPosition(0, -130, 0)
-	self.mobinfo_root.mobinfopage.scrolllist.mob:SetClickable(false)
+	local mobframe = page_info:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
+	mobframe:SetPosition(0, mobframe_y, 0)
+	mobframe:SetScale(0.8, 1)
 
-	self.mobinfo_root.mobinfopage.scrolllist.mobname = self.mobinfo_root.mobinfopage.scrolllist:AddChild(Text(HEADERFONT, 92, "Unknown", UICOLOURS.BROWN_DARK))
-	self.mobinfo_root.mobinfopage.scrolllist.mobname:SetPosition(0, mobframe_y + h/2 + 70, 0)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_bg = page_info:AddChild(Image("images/bestiary_mob_bg.xml", "bestiary_mob_bg.tex"))
+	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetPosition(3, mobframe_y, 0)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetScale(0.8, 1)
+
+	local w, h = self.mobinfo_root.mobinfopage.scrollarea.mob_bg:GetSize()
+	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetScissor(-w/2, -h/2, w, h)
+
+	self.mobinfo_root.mobinfopage.scrollarea.mob = page_info:AddChild(UIAnim())
+	self.mobinfo_root.mobinfopage.scrollarea.mob:SetPosition(0, -130, 0)
+	self.mobinfo_root.mobinfopage.scrollarea.mob:SetClickable(false)
+
+	self.mobinfo_root.mobinfopage.scrollarea.mobname = page_info:AddChild(Text(HEADERFONT, 92, "Unknown", UICOLOURS.BROWN_DARK))
+	self.mobinfo_root.mobinfopage.scrollarea.mobname:SetPosition(0, mobframe_y + h/2 + 70, 0)
 end
 
 function BestiaryMonstersPage:OpenNewMobInfo(data)
@@ -344,7 +340,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 	end
 
 	if self.mobinfo_root.mobinfopage == nil then
-		CreateMobPage(self)
+		CreateMobPage(self, data)
 
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
@@ -360,9 +356,9 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 end
 
 function BestiaryMonstersPage:UpdateMobInfo(data)
-	self.mobinfo_root.mobinfopage.mob:GetAnimState():SetBank(data.bank)
-	self.mobinfo_root.mobinfopage.mob:GetAnimState():SetBuild(data.build)
-	self.mobinfo_root.mobinfopage.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():SetBank(data.bank)
+	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():SetBuild(data.build)
+	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
 end
 
 function BestiaryMonstersPage:Close(height)
