@@ -121,7 +121,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 		w.cell_root.bg:SetOnLoseFocus(function()
 			if w.data then
-				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle, true)
+				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle or w.data.forms[1].anim_idle, true)
 				w.cell_root.mob_root.mob:GetAnimState():Pause()
 			end
 
@@ -165,9 +165,9 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			w.cell_root.bg:Show()
 			w.cell_root.mob_root.mob:Show()
 
-			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank)
-			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build)
-			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank or data.forms[1].bank)
+			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build or data.forms[1].build)
+			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle or data.forms[1].anim_idle, true)
 			w.cell_root.mob_root.mob:GetAnimState():Pause()
 
 			w:Enable()
@@ -192,19 +192,20 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			item_ctor_fn = ScrollWidgetsCtor,
 			apply_fn = ScrollWidgetSetData,
 			scrollbar_offset = 40,
-			scrollbar_height_offset = -150
+			scrollbar_height_offset = -30
 		}
 	)
 
-	grid.up_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
+	grid.up_button:SetTextures("images/plantregistry.xml", "nutrient_neutral.tex")
 	grid.up_button:SetScale(1)
+	grid.up_button:Nudge(Vector3(0, -25, 0))
 
-	grid.down_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
+	grid.down_button:SetTextures("images/plantregistry.xml", "nutrient_neutral.tex")
 	grid.down_button:SetScale(-1)
-	grid.down_button:SetPosition(2, -grid.scrollbar_height/2 - 5)
+	grid.down_button:Nudge(Vector3(0, 25, 0))
 
 	grid.scroll_bar_line:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_bar.tex")
-	grid.scroll_bar_line:SetScale(1, 1.5)
+	grid.scroll_bar_line:SetScale(1, 1.7)
 
 	grid.position_marker:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
 	grid.position_marker.image:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
@@ -261,50 +262,182 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 	return grid
 end
 
-local function CreateMobPage(self, data) -- Work on proper scroll are display
+local function CreateMobCell(width, height)
+	local root = Widget("mob_cell_root")
+
+	local page_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
+	page_decor:SetPosition(0, 0, 0)
+	page_decor:SetScale(1.6, 0.85)
+
+	root.mob_bg = root:AddChild(Image("images/bestiary_mob_bg.xml", "bestiary_mob_bg.tex"))
+	root.mob_bg:SetPosition(3, -50, 0)
+	root.mob_bg:SetScale(0.8, 1)
+
+	root.mob = root:AddChild(UIAnim())
+	root.mob:SetPosition(0, -170, 0)
+	root.mob:SetClickable(false)
+
+	local mobframe = root:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
+	mobframe:SetPosition(0, -50, 0)
+	mobframe:SetScale(0.8, 1)
+
+	local w, h = page_decor:GetSize()
+	root.cell_height = h
+
+	local details_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_corner_decoration.tex"))
+	details_decor:SetPosition(-300, 200)
+	details_decor:SetScale(1, -1)
+	details_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_corner_decoration.tex"))
+	details_decor:SetPosition(300, 200)
+	details_decor:SetScale(-1, -1)
+
+	local decor_line = root:AddChild(Image("images/ui.xml", "line_horizontal_white.tex"))
+    decor_line:SetTint(unpack(BROWN))
+	decor_line:SetPosition(0, h/2 - 160, 0)
+	decor_line:ScaleToSize(500, 5)
+
+	root.mobname = root:AddChild(Text(TALKINGFONT_WORMWOOD, 86, nil, UICOLOURS.WHITE))
+	root.mobname:SetPosition(0, h/2 - 135, 0)
+
+	return root
+end
+
+local function CreateMobPage(self) -- Work on proper scroll and display
 	self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/mobinfopage.xml", "mobinfopage.tex"))
 	self.mobinfo_root.mobinfopage:SetScale(0.68, 0.6)
 
 	local page_info = Widget("page_info")
-	local scissor_data = { x = 0, y = 0, width = 200, height = 500 }
-	local context = { widget = page_info, offset = { x = 0, y = 500/2 }, size = { w = 200, height = 500 } }
-	local scrollbar = { scroll_per_click = 20*3 }
-	self.mobinfo_root.mobinfopage.scrollarea = self.mobinfo_root.mobinfopage:AddChild(TrueScrollArea(context, scissor_data, scrollbar))
-	self.mobinfo_root.mobinfopage.scrollarea.up_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
-	self.mobinfo_root.mobinfopage.scrollarea.up_button:SetScale(0.75)
 
-	self.mobinfo_root.mobinfopage.scrollarea.down_button:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_arrow_hover.tex")
-	self.mobinfo_root.mobinfopage.scrollarea.down_button:SetScale(-0.75)
-
-	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_bar.tex")
-	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:SetScale(0.85, 1)
-
-	self.mobinfo_root.mobinfopage.scrollarea.position_marker:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
-	self.mobinfo_root.mobinfopage.scrollarea.position_marker:SetScale(0.75)
-
-	local mobframe_y = 180
+	local width = 800
+	local height = 0
+	local padding = 5
+	local max_visible_height = 1100
+	local section_space = 30
 	
-	local page_decor = page_info:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
-	page_decor:SetPosition(0, mobframe_y + 40, 0)
-	page_decor:SetScale(1.5, 0.9)
+	local mob_cell = page_info:AddChild(CreateMobCell(width, height))
+	mob_cell:SetPosition(width/2, height - mob_cell.cell_height/2 + 20, 0)
+	height = height - mob_cell.cell_height - section_space + 20
 
-	local mobframe = page_info:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
-	mobframe:SetPosition(0, mobframe_y, 0)
-	mobframe:SetScale(0.8, 1)
+	local decor_line = page_info:AddChild(Image("images/ui.xml", "line_horizontal_white.tex"))
+    decor_line:SetTint(unpack(BROWN))
+	decor_line:SetPosition(width/2, height + 30, 0)
+	decor_line:ScaleToSize(800, 5)
+	height = height - section_space + 30
 
-	self.mobinfo_root.mobinfopage.scrollarea.mob_bg = page_info:AddChild(Image("images/bestiary_mob_bg.xml", "bestiary_mob_bg.tex"))
-	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetPosition(3, mobframe_y, 0)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetScale(0.8, 1)
+	-- Health Damage Speed --
 
-	local w, h = self.mobinfo_root.mobinfopage.scrollarea.mob_bg:GetSize()
-	self.mobinfo_root.mobinfopage.scrollarea.mob_bg:SetScissor(-w/2, -h/2, w, h)
+	local separation_dist = 233
+	local badge_size = 150
 
-	self.mobinfo_root.mobinfopage.scrollarea.mob = page_info:AddChild(UIAnim())
-	self.mobinfo_root.mobinfopage.scrollarea.mob:SetPosition(0, -130, 0)
-	self.mobinfo_root.mobinfopage.scrollarea.mob:SetClickable(false)
+	local health = page_info:AddChild(Image("images/global_redux.xml", "status_health.tex"))
+	health:SetPosition(width/2 - separation_dist, height - badge_size/2, 0)
+	health:ScaleToSize(badge_size, badge_size)
+	
+	local damage = page_info:AddChild(Image("images/global_redux.xml", "status_health.tex"))
+	damage:SetPosition(width/2, height - badge_size/2, 0)
+	damage:ScaleToSize(badge_size, badge_size)
 
-	self.mobinfo_root.mobinfopage.scrollarea.mobname = page_info:AddChild(Text(HEADERFONT, 92, "Unknown", UICOLOURS.BROWN_DARK))
-	self.mobinfo_root.mobinfopage.scrollarea.mobname:SetPosition(0, mobframe_y + h/2 + 70, 0)
+	local speed = page_info:AddChild(Image("images/global_redux.xml", "status_health.tex"))
+	speed:SetPosition(width/2 + separation_dist, height - badge_size/2, 0)
+	speed:ScaleToSize(badge_size, badge_size)
+	height = height - badge_size - section_space
+
+
+	local health_value = page_info:AddChild(Text(HEADERFONT, 96, nil, UICOLOURS.BROWN_DARK))
+	local w, h = health_value:GetRegionSize()
+	health_value:SetPosition(width/2 - separation_dist, height - h/2, 0)
+
+	local damage_value = page_info:AddChild(Text(HEADERFONT, 96, nil, UICOLOURS.BROWN_DARK))
+	local w, h = damage_value:GetRegionSize()
+	damage_value:SetPosition(width/2, height - h/2, 0)
+
+	local speed_value = page_info:AddChild(Text(HEADERFONT, 96, nil, UICOLOURS.BROWN_DARK))
+	local w, h = speed_value:GetRegionSize()
+	speed_value:SetPosition(width/2 + separation_dist, height - h/2, 0)
+	height = height - h - section_space
+
+	-- Health Damage Speed --
+
+	local filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
+	local w, h = filler:GetRegionSize()
+	filler:SetPosition(width/2, height - h/2, 0)
+	height = height - h - section_space
+
+	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
+	local w, h = filler:GetRegionSize()
+	filler:SetPosition(width/2, height - h/2, 0)
+	height = height - h - section_space
+
+	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
+	local w, h = filler:GetRegionSize()
+	filler:SetPosition(width/2, height - h/2, 0)
+	height = height - h - section_space
+
+	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
+	local w, h = filler:GetRegionSize()
+	filler:SetPosition(width/2, height - h/2, 0)
+	height = height - h - section_space
+
+	height = math.abs(height)
+	local top = math.min(height, max_visible_height)/2 - padding
+
+	local scissor_data = { x = 0, y = -max_visible_height/2, width = width, height = max_visible_height }
+	local context = { widget = page_info, offset = { x = 0, y = top }, size = { w = width, height = height + padding } }
+	local scrollbar = { scroll_per_click = 12*3, v_offset = -50 }
+	self.mobinfo_root.mobinfopage.scrollarea = self.mobinfo_root.mobinfopage:AddChild(TrueScrollArea(context, scissor_data, scrollbar))
+	self.mobinfo_root.mobinfopage.scrollarea:SetPosition(-width/2, 0)
+
+	self.mobinfo_root.mobinfopage.scrollarea.up_button:Kill()
+	self.mobinfo_root.mobinfopage.scrollarea.down_button:Kill()
+
+	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:SetTexture("images/global_redux.xml", "scrollbar_bar.tex")
+	self.mobinfo_root.mobinfopage.scrollarea.scroll_bar_line:ScaleToSize(20, max_visible_height - 90)
+
+	self.mobinfo_root.mobinfopage.scrollarea.position_marker:SetScale(0.8)
+
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell = mob_cell
+	self.mobinfo_root.mobinfopage.scrollarea.health = health_value
+	self.mobinfo_root.mobinfopage.scrollarea.damage = damage_value
+	self.mobinfo_root.mobinfopage.scrollarea.speed = speed_value
+
+	local old_RefreshView = self.mobinfo_root.mobinfopage.scrollarea.RefreshView -- Fix scissoring
+	self.mobinfo_root.mobinfopage.scrollarea.RefreshView = function(self)
+		old_RefreshView(self)
+
+		local w, h = self.mob_cell.mob_bg:GetScaledSize()
+		self.mob_cell.mob:SetScissor(-w/2 + 3, -h/2 + 120, w, h)
+
+		-- for i = 1, self.items_per_view do
+		-- 	local cellimagew, cellimageh = self.widgets_to_update[i].cell_root.bg.image:GetSize()
+		-- 	local scroll_percent = self.current_scroll_pos%1
+		-- 	local hoffset = 1 - math.clamp(scroll_percent + (-(1 - 1) + (1 - 1)*2*scroll_percent), 0, 1)
+
+		-- 	if i >= 1 and i <= 5 then
+		-- 		local x = -cellimagew/2
+		-- 		local y = -cellimageh/2
+		-- 		local w = cellimagew
+		-- 		local h = cellimageh*hoffset
+
+		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
+		-- 	elseif i >= 26 and i <= 30 then
+		-- 		local x = -cellimagew/2
+		-- 		local y = -cellimageh/2 + cellimageh*hoffset
+		-- 		local w = cellimagew
+		-- 		local h = cellimageh*(1 - hoffset)
+
+		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
+		-- 	elseif i >= 31 and i <= 35 and self.current_scroll_pos < self.end_pos - 1 then
+		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(0, 0, 0, 0)
+		-- 	else
+		-- 		local x = -cellimagew/2
+		-- 		local y = -cellimageh/2
+		-- 		local w = cellimagew
+		-- 		local h = cellimageh
+
+		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
+		-- 	end
+		-- end
+	end
 end
 
 function BestiaryMonstersPage:OpenNewMobInfo(data)
@@ -318,7 +451,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
-		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-pagew/2 + 140, 0, 0), Vector3(pagew, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-pagew/2 + 150, 0, 0), Vector3(pagew, 0, 0), 0.2)
 		self.mobinfo_root.mobinfopage:RotateTo(rot, 20, 0.2, function()
 			self:UpdateMobInfo(data)
 
@@ -340,11 +473,11 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 	end
 
 	if self.mobinfo_root.mobinfopage == nil then
-		CreateMobPage(self, data)
+		CreateMobPage(self)
 
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
-		self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 140, 0, 0), 0.2)
+		self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 150, 0, 0), 0.2)
 		self.mobinfo_root.mobinfopage:RotateTo(20, 0, 0.2, function()
 			self.mobinfo_root.mobinfopage.is_loading = false
 		end)
@@ -356,9 +489,14 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 end
 
 function BestiaryMonstersPage:UpdateMobInfo(data)
-	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():SetBank(data.bank)
-	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():SetBuild(data.build)
-	self.mobinfo_root.mobinfopage.scrollarea.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(data.name or data.forms[1].name, 1, 500, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBank(data.bank or data.forms[1].bank)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBuild(data.build or data.forms[1].build)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.anim_idle or data.forms[1].anim_idle, true)
+
+	self.mobinfo_root.mobinfopage.scrollarea.health:SetMultilineTruncatedString(tostring(data.stats and data.stats.health or data.forms[1].stats.health), 1, 200, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.damage:SetMultilineTruncatedString(tostring(data.stats and data.stats.damage or data.forms[1].stats.damage), 1, 200, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.speed:SetMultilineTruncatedString(tostring(data.stats and data.stats.speed or data.forms[1].stats.speed), 1, 200, nil, nil, true)
 end
 
 function BestiaryMonstersPage:Close(height)
