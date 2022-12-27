@@ -21,3 +21,15 @@ modimport("scripts/addbestiarytohud")
 modimport("scripts/bestiaryrpcs")
 
 --/\ EXTERNAL CODE /\--
+
+--\/ MODMAIN CODE \/--
+
+AddPlayerPostInit(function(inst)
+    if not GLOBAL.TheWorld.ismastersim then
+        return
+    end
+
+    inst:AddComponent("bestiaryuser")
+end)
+
+--/\ MODMAIN CODE /\--

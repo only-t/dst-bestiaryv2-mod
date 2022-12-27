@@ -24,13 +24,13 @@ local BestiaryPopupScreen = Class(Screen, function(self, owner)
 
 	self.default_focus = self.bestiary
     
-    SetAutopaused(true)
+    -- SetAutopaused(true)
 end)
 
 function BestiaryPopupScreen:OnDestroy()
     POPUPS.BESTIARY:Close(self.owner)
 
-    SetAutopaused(false)
+    -- SetAutopaused(false)
 
     local sw, sh = self.page:GetScaledSize()
     self.bestiary:Close(sh)

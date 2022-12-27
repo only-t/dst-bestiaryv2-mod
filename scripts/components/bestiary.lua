@@ -1,5 +1,0 @@
-local Bestiary = Class(function(self, inst)
-    self.inst = inst
-end)
-
-return Bestiary

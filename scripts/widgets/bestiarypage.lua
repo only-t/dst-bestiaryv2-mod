@@ -180,7 +180,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
     end
 
 	local grid = TEMPLATES.ScrollingGrid(
-		require("monsterinfo"),
+		{  },
 		{
 			context = {  },
 			widget_width = width,
@@ -195,6 +195,13 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			scrollbar_height_offset = -30
 		}
 	)
+
+	grid.no_entry_text = grid:AddChild(Text(HEADERFONT, 32, STRINGS.NO_BESTIARY_ENTRIES_WARNING, UICOLOURS.BROWN_DARK))
+	grid.no_entry_text:SetRotation(10)
+
+	if #grid.items > 0 then
+		grid.no_entry_text:Hide()
+	end
 
 	grid.up_button:SetTextures("images/plantregistry.xml", "nutrient_neutral.tex")
 	grid.up_button:SetScale(1)
@@ -445,7 +452,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 		return
 	end
 
-	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn") -- Only works if not auto-paused
+	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn") -- Only works if not auto-paused, for some reason °_o
 
 	if self.mobinfo_root.mobinfopage then
 		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
