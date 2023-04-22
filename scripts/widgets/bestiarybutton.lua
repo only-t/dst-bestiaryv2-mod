@@ -27,7 +27,7 @@ local BestiaryButton = Class(Widget, function(self, owner)
     end
 
     self.button:SetOnClick(function()
-        SendModRPCToServer(GetModRPC("󰀈 Bestiary 󰀈", "open_bestiary"))
+        SendModRPCToServer(GetModRPC("󰀈 Bestiary 󰀈", "OpenBestiary"))
     end)
 
     self.banner = self:AddChild(Widget("banner"))

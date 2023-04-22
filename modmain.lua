@@ -1,9 +1,5 @@
-local require = GLOBAL.require
-
-GLOBAL.CHEATS_ENABLED = true
-require("debugkeys")
-
-GLOBAL.DISCOVERABLE_MOBS_CONFIG = GetModConfigData("Discoverable Mobs")
+env._G = GLOBAL._G
+GLOBAL.setfenv(1, env)
 
 --\/ INIT \/--
 
@@ -22,14 +18,22 @@ modimport("scripts/bestiaryrpcs")
 
 --/\ EXTERNAL CODE /\--
 
---\/ MODMAIN CODE \/--
+_G.global("TheBestiary")
+_G.TheBestiary = require("bestiarydata")()
+_G.TheBestiary:Load()
+
+local function OnPlayerActivated(inst)
+	if not _G.TheNet:IsDedicated() and inst == _G.ThePlayer then
+		inst.bestiary = _G.TheBestiary
+	end
+end
 
 AddPlayerPostInit(function(inst)
-    if not GLOBAL.TheWorld.ismastersim then
+	inst:ListenForEvent("playeractivated", OnPlayerActivated)
+
+    if not _G.TheWorld.ismastersim then
         return
     end
 
     inst:AddComponent("bestiaryuser")
 end)
-
---/\ MODMAIN CODE /\--
