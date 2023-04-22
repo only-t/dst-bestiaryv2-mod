@@ -29,7 +29,7 @@ Assets = {
 
  -- Load in base game assets for mobs for usage in the compendium
 
-if GLOBAL.TheNet:GetServerGameMode() == "" then
+if _G.TheNet:GetServerGameMode() == "" then
 	local assets = {
 		Asset("ATLAS", "minimap/minimap_data.xml"),
 		Asset("IMAGE", "minimap/minimap_atlas.tex"),

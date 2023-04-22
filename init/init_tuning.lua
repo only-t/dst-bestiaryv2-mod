@@ -58,6 +58,6 @@ local wilson_attack_period = 0.4
 
 	--- *** ---
 
-local TUNING = GLOBAL.TUNING
+local TUNING = _G.TUNING
 
 TUNING.DISCOVER_MOB_RANGE = 7
