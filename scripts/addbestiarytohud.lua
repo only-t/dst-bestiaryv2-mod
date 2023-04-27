@@ -2,44 +2,47 @@ local BestiaryPopupScreen = require "widgets/bestiarypopupscreen"
 local Widget = require "widgets/widget"
 local BestiaryButton = require "widgets/bestiarybutton"
 
-AddClassPostConstruct("screens/playerhud", function(class)
-	class.CloseBestiaryScreen = function(class)
-		if class.bestiaryscreen then
-			if class.bestiaryscreen.inst:IsValid() then
-				_G.TheFrontEnd:PopScreen(class.bestiaryscreen)
-			end
-			
-			class.bestiaryscreen = nil
-		end
-	end
+local PlayerHud = require("screens/playerhud")
+PlayerHud.OpenBestiaryScreen = function(self)
+	self:CloseBestiaryScreen()
+	self.bestiaryscreen = BestiaryPopupScreen(self.owner)
+	self:OpenScreenUnderPause(self.bestiaryscreen)
 	
-	class.OpenBestiaryScreen = function(class)
-		class:CloseBestiaryScreen()
-		class.bestiaryscreen = BestiaryPopupScreen(class.owner)
-		class:OpenScreenUnderPause(class.bestiaryscreen)
+	return true
+end
+
+PlayerHud.CloseBestiaryScreen = function(self)
+	if self.bestiaryscreen then
+		if self.bestiaryscreen.inst:IsValid() then
+			_G.TheFrontEnd:PopScreen(self.bestiaryscreen)
+		end
 		
-		return true
+		self.bestiaryscreen = nil
 	end
-end)
+end
 
-AddClassPostConstruct("widgets/controls", function(class)
+local PlayerHud = require("screens/playerhud")
+local old_PlayerHud_ctor = PlayerHud._ctor
+PlayerHud._ctor = function(self, ...)
+	old_PlayerHud_ctor(self, ...)
+
 	if _G.TheNet:GetServerGameMode() ~= "lavaarena" and _G.TheNet:GetServerGameMode() ~= "quagmire" then
-		class.bottomleft_root = class:AddChild(Widget("bottomleft"))
-		class.bottomleft_root:SetScaleMode(_G.SCALEMODE_PROPORTIONAL)
-		class.bottomleft_root:SetHAnchor(_G.ANCHOR_LEFT)
-		class.bottomleft_root:SetVAnchor(_G.ANCHOR_BOTTOM)
-		class.bottomleft_root:SetMaxPropUpscale(_G.MAX_HUD_SCALE)
-		class.bottomleft_root = class.bottomleft_root:AddChild(Widget("br_scale_root"))
-		class.bottomleft_root:SetScale(_G.TheFrontEnd:GetHUDScale())
+		self.bottomleft_root = self:AddChild(Widget("bottomleft"))
+		self.bottomleft_root:SetScaleMode(_G.SCALEMODE_PROPORTIONAL)
+		self.bottomleft_root:SetHAnchor(_G.ANCHOR_LEFT)
+		self.bottomleft_root:SetVAnchor(_G.ANCHOR_BOTTOM)
+		self.bottomleft_root:SetMaxPropUpscale(_G.MAX_HUD_SCALE)
+		self.bottomleft_root = self.bottomleft_root:AddChild(Widget("br_scale_root"))
+		self.bottomleft_root:SetScale(_G.TheFrontEnd:GetHUDScale())
 
-		class.bestiarybutton = class.bottomleft_root:AddChild(BestiaryButton(class.owner))
-		class.bestiarybutton:SetPosition(90, 45, 0)
+		self.bestiarybutton = self.bottomleft_root:AddChild(BestiaryButton(self.owner))
+		self.bestiarybutton:SetPosition(90, 45, 0)
 	end
+end
 
-	local old_SetHUDSize = class.SetHUDSize
-	class.SetHUDSize = function(class)
-		class.bottomleft_root:SetScale(_G.TheFrontEnd:GetHUDScale())
+local old_PlayerHud_SetHUDSize = PlayerHud.SetHUDSize
+PlayerHud.SetHUDSize = function(self, ...)
+	self.bottomleft_root:SetScale(_G.TheFrontEnd:GetHUDScale())
 
-		old_SetHUDSize(class)
-	end
-end)
+	old_PlayerHud_SetHUDSize(self, ...)
+end

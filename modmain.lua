@@ -18,6 +18,8 @@ modimport("scripts/bestiaryrpcs")
 
 --/\ EXTERNAL CODE /\--
 
+require("debugkeys")
+
 _G.global("TheBestiary")
 _G.TheBestiary = require("bestiarydata")()
 _G.TheBestiary:Load()

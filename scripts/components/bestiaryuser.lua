@@ -36,6 +36,14 @@ function BestiaryUser:DiscoverMob(mob)
     local mob_data = self.discovered_mobs[mob.prefab]
     local mob_data_table = { mob.prefab }
 
+    mob_data.bank = "spider"
+    -- mob_data.build = mob.AnimState:GetBuild()
+    mob_data.build = "spider_build"
+    mob_data.anim_idle = "idle"
+    table.insert(mob_data_table, mob_data.bank)
+    table.insert(mob_data_table, mob_data.build)
+    table.insert(mob_data_table, mob_data.anim_idle)
+
     if mob.components.health then
         mob_data.health = mob.components.health.maxhealth
         table.insert(mob_data_table, mob_data.health)

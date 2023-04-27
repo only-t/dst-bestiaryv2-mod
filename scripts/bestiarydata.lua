@@ -32,17 +32,31 @@ function BestiaryData:DiscoverMob(mob_data)
 		self.discovered_mobs[mob_data.name] = { name = mob_data.name }
     
 		local t = self.discovered_mobs[mob_data.name]
+		t.bank = mob_data.bank
+		t.build = mob_data.build
+		t.anim_idle = mob_data.anim_idle
 		t.health = mob_data.health
 		t.damage = mob_data.damage
 		t.walkspeed = mob_data.walkspeed
 		t.runspeed = mob_data.runspeed
-
-		self.dirty = true
 	end
+
+	self:Save(true)
 end
 
 function BestiaryData:LearnMob(mob_data)
 
+	
+	self:Save(true)
+end
+
+function BestiaryData:GetDiscoveredMobs()
+	local t = {  }
+	for name, data in pairs(self.discovered_mobs) do
+		table.insert(t, data)
+	end
+
+	return t
 end
 
 function BestiaryData:PrintDebugString()

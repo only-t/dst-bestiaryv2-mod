@@ -4,16 +4,19 @@ AddModRPCHandler("󰀈 Bestiary 󰀈", "OpenBestiary", function(player)
     end
 end)
 
-local MOB_DATA_NAMES = { "name", "health", "damage", "walkspeed", "runspeed" }
+local MOB_DATA_NAMES = { "name", "bank", "build", "anim_idle", "health", "damage", "walkspeed", "runspeed" }
 AddClientModRPCHandler("󰀈 Bestiary 󰀈", "DiscoverMob", function(...)
     -- The variable number of arguments should always be in this order:
     -- 1. name
-    -- 2. health
-    -- 3. damage
-    -- 4. walkspeed
-    -- 5. runspeed
+    -- 2. bank
+    -- 3. build
+    -- 4. anim_idle
+    -- 5. health
+    -- 6. damage
+    -- 7. walkspeed
+    -- 8. runspeed
     -- ...
-    -- { "name", "health", "damage", "walkspeed", "runspeed" }
+    -- { "name", "bank", "build", "anim_idle", "health", "damage", "walkspeed", "runspeed" }
 
     local mob_data = {  }
     for i, data in ipairs(arg) do

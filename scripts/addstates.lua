@@ -3,7 +3,12 @@ local TimeEvent = _G.TimeEvent
 local EventHandler = _G.EventHandler
 local FRAMES = _G.FRAMES
 
-local bestiary_openstate = State{
+
+-- SERVER --
+
+local SGwilson = require("stategraphs/SGwilson")
+
+SGwilson.states["bestiary_open"] = State{
 	name = "bestiary_open",
 	tags = { "doing", "busy" },
 
@@ -38,10 +43,10 @@ local bestiary_openstate = State{
 
 	onexit = function(inst)
 		inst:ShowPopUp(_G.POPUPS.BESTIARY, false)
-	end,
+	end
 }
 
-local bestiary_closestate = State{
+SGwilson.states["bestiary_close"] = State{
 	name = "bestiary_close",
 	tags = { "idle", "nodangle" },
 
@@ -56,13 +61,21 @@ local bestiary_closestate = State{
 			if inst.AnimState:AnimDone() then
 				inst.sg:GoToState(inst.components.inventory:GetEquippedItem(_G.EQUIPSLOTS.HANDS) and "item_out" or "idle")
 			end
-		end),
-	},
+		end)
+	}
 }
 
-local bestiary_open_clientstate = State{
+
+-- CLIENT --
+
+local SGwilson_client = require("stategraphs/SGwilson_client")
+
+local TIMEOUT = 2
+
+SGwilson_client.states["bestiary_open"] = State{
 	name = "bestiary_open",
-	tags = { "doing" },
+	tags = { "doing", "busy" },
+	server_states = { "bestiary_open" },
 
 	onenter = function(inst)
 		inst.components.locomotor:Stop()
@@ -70,7 +83,7 @@ local bestiary_open_clientstate = State{
 		inst.AnimState:PushAnimation("action_uniqueitem_lag", false)
 
 		inst:PerformPreviewBufferedAction()
-		inst.sg:SetTimeout(2)
+		inst.sg:SetTimeout(TIMEOUT)
 	end,
 
 	onupdate = function(inst)
@@ -88,7 +101,3 @@ local bestiary_open_clientstate = State{
 		inst.sg:GoToState("idle")
 	end,
 }
-
-AddStategraphState("wilson", bestiary_openstate)
-AddStategraphState("wilson", bestiary_closestate)
-AddStategraphState("wilson_client", bestiary_open_clientstate)

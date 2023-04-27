@@ -6,6 +6,15 @@ local Text = require "widgets/text"
 local TrueScrollArea = require "widgets/truescrollarea"
 local TEMPLATES = require "widgets/redux/templates"
 
+--[[
+AnimState:GetVisualBB() has been added to get the size of an AnimState at the time of calling.
+This value will change over time during animations. It returns the minimum x,y and maximum x,y coordinates
+with the AnimState scaling taken into account and can be used to know how far away horizontally or vertically art
+is going to be able to be drawn from the entity origin without any projections taken into consideration.
+
+UIAnim:GetBoundingBoxSize() has been added as a convenience wrapper for getting the width and height of the element.
+]]
+
 local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	Widget._ctor(self, "BestiaryMonstersPage")
 
@@ -41,19 +50,19 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	self.parent_default_focus = self.mobgrid_root.grid
 	self.focus_forward = self.mobgrid_root.grid
 
-	self.mobinfo_root_xoffset = -340
+	local mobinfo_root_xoffset = -340
 	self.mobinfo_root = self:AddChild(Widget("mobinfo_root"))
     self.mobinfo_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.mobinfo_root:SetVAnchor(ANCHOR_MIDDLE)
     self.mobinfo_root:SetHAnchor(ANCHOR_RIGHT)
 
 	self.mobinfo_root.bg_decor = self.mobinfo_root:AddChild(Image("images/bestiary_mobinfo_bg.xml", "basic_unknown.tex"))
-	self.mobinfo_root.bg_decor:SetPosition(self.mobinfo_root_xoffset + 10, 0, 0)
+	self.mobinfo_root.bg_decor:SetPosition(mobinfo_root_xoffset + 10, 0, 0)
 	self.mobinfo_root.bg_decor:ScaleToSize(128, 128)
 	self.mobinfo_root.bg_decor:SetTint(1, 1, 1, 0.8)
 
 	local outline_decor = self.mobinfo_root:AddChild(Image("images/options.xml", "panel_frame.tex"))
-	outline_decor:SetPosition(self.mobinfo_root_xoffset + 20, 0, 0)
+	outline_decor:SetPosition(mobinfo_root_xoffset + 20, 0, 0)
 	outline_decor:SetSize(740, 600)
 	outline_decor:SetRotation(90)
 
@@ -121,7 +130,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 		w.cell_root.bg:SetOnLoseFocus(function()
 			if w.data then
-				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle or w.data.forms[1].anim_idle, true)
+				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle, true)
 				w.cell_root.mob_root.mob:GetAnimState():Pause()
 			end
 
@@ -165,9 +174,9 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			w.cell_root.bg:Show()
 			w.cell_root.mob_root.mob:Show()
 
-			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank or data.forms[1].bank)
-			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build or data.forms[1].build)
-			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle or data.forms[1].anim_idle, true)
+			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank)
+			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build)
+			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
 			w.cell_root.mob_root.mob:GetAnimState():Pause()
 
 			w:Enable()
@@ -178,9 +187,9 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			w:Disable()
 		end
     end
-
+	
 	local grid = TEMPLATES.ScrollingGrid(
-		{  },
+		TheBestiary:GetDiscoveredMobs(),
 		{
 			context = {  },
 			widget_width = width,
@@ -349,7 +358,6 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	speed:ScaleToSize(badge_size, badge_size)
 	height = height - badge_size - section_space
 
-
 	local health_value = page_info:AddChild(Text(HEADERFONT, 96, nil, UICOLOURS.BROWN_DARK))
 	local w, h = health_value:GetRegionSize()
 	health_value:SetPosition(width/2 - separation_dist, height - h/2, 0)
@@ -362,8 +370,6 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	local w, h = speed_value:GetRegionSize()
 	speed_value:SetPosition(width/2 + separation_dist, height - h/2, 0)
 	height = height - h - section_space
-
-	-- Health Damage Speed --
 
 	local filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
 	local w, h = filler:GetRegionSize()
@@ -496,14 +502,14 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 end
 
 function BestiaryMonstersPage:UpdateMobInfo(data)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(data.name or data.forms[1].name, 1, 500, nil, nil, true)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBank(data.bank or data.forms[1].bank)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBuild(data.build or data.forms[1].build)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.anim_idle or data.forms[1].anim_idle, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(STRINGS.NAMES[string.upper(data.name)] or "Unknown", 1, 500, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBank(data.bank)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBuild(data.build)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
 
-	self.mobinfo_root.mobinfopage.scrollarea.health:SetMultilineTruncatedString(tostring(data.stats and data.stats.health or data.forms[1].stats.health), 1, 200, nil, nil, true)
-	self.mobinfo_root.mobinfopage.scrollarea.damage:SetMultilineTruncatedString(tostring(data.stats and data.stats.damage or data.forms[1].stats.damage), 1, 200, nil, nil, true)
-	self.mobinfo_root.mobinfopage.scrollarea.speed:SetMultilineTruncatedString(tostring(data.stats and data.stats.speed or data.forms[1].stats.speed), 1, 200, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.health:SetMultilineTruncatedString(tostring(data.health), 1, 200, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.damage:SetMultilineTruncatedString(tostring(data.damage), 1, 200, nil, nil, true)
+	self.mobinfo_root.mobinfopage.scrollarea.speed:SetMultilineTruncatedString(tostring(data.walkspeed), 1, 200, nil, nil, true)
 end
 
 function BestiaryMonstersPage:Close(height)
