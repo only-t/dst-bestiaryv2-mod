@@ -6,15 +6,6 @@ local Text = require "widgets/text"
 local TrueScrollArea = require "widgets/truescrollarea"
 local TEMPLATES = require "widgets/redux/templates"
 
---[[
-AnimState:GetVisualBB() has been added to get the size of an AnimState at the time of calling.
-This value will change over time during animations. It returns the minimum x,y and maximum x,y coordinates
-with the AnimState scaling taken into account and can be used to know how far away horizontally or vertically art
-is going to be able to be drawn from the entity origin without any projections taken into consideration.
-
-UIAnim:GetBoundingBoxSize() has been added as a convenience wrapper for getting the width and height of the element.
-]]
-
 local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
 	Widget._ctor(self, "BestiaryMonstersPage")
 
@@ -25,21 +16,6 @@ local BestiaryMonstersPage = Class(Widget, function(self, owner, parentpage)
     self.mobgrid_root:SetScaleMode(SCALEMODE_PROPORTIONAL)
     self.mobgrid_root:SetVAnchor(ANCHOR_MIDDLE)
     self.mobgrid_root:SetHAnchor(ANCHOR_LEFT)
-
-	local old_OnWallUpdate = self.mobgrid_root.inst.components.uianim.OnWallUpdate
-	self.mobgrid_root.inst.components.uianim.OnWallUpdate = function(component, dt)
-		if not component.inst:IsValid() then
-			component.inst:StopWallUpdatingComponent(component)
-
-			return
-		end
-
-		old_OnWallUpdate(component, dt)
-
-		if component.pos_t then
-			self.mobgrid_root.grid:RefreshView()
-		end
-	end
 
 	self.mobgrid_root.grid = self.mobgrid_root:AddChild(self:CreateMonsterGrid())
 
@@ -72,7 +48,6 @@ end)
 function BestiaryMonstersPage:CreateMonsterGrid()
 	local width = 150
 	local height = 150
-	local mob_scale = 0.35
 	local cell_scale = 0.9
 	
 	local function ScrollWidgetsCtor(context, index)
@@ -88,7 +63,6 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 		w.cell_root.mob_root = w.cell_root.bg:AddChild(Widget("mob_root"))
 		w.cell_root.mob_root.mob = w.cell_root.mob_root:AddChild(UIAnim())
-		w.cell_root.mob_root.mob:SetScale(mob_scale, mob_scale, mob_scale)
 		w.cell_root.mob_root.mob:SetClickable(false)
 
 		local cell_w, cell_h = w.cell_root.bg.image:GetSize()
@@ -130,7 +104,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 		w.cell_root.bg:SetOnLoseFocus(function()
 			if w.data then
-				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.anim_idle, true)
+				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.caught_anim, true)
 				w.cell_root.mob_root.mob:GetAnimState():Pause()
 			end
 
@@ -176,8 +150,23 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank)
 			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build)
-			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.caught_anim, true)
 			w.cell_root.mob_root.mob:GetAnimState():Pause()
+
+			local bb_x1, bb_y1, bb_x2, bb_y2 =  w.cell_root.mob_root.mob.inst.AnimState:GetVisualBB()
+			local bb_w, bb_h = bb_x2 - bb_x1, bb_y2 - bb_y1
+			local bg_size = w.cell_root.bg.image:GetScaledSize()
+			local bb_scale = 0.65
+
+			if bb_w > bg_size + 80 or bb_h > bg_size + 80 then
+				if bb_h > bb_w then
+					bb_scale = bg_size/bb_h
+				else
+					bb_scale = bg_size/bb_w
+				end
+			end
+			
+			w.cell_root.mob_root.mob:SetScale(bb_scale)
 
 			w:Enable()
 		else
@@ -275,10 +264,35 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 		end
 	end
 
+	local old_OnUpdate = grid.OnUpdate
+	grid.OnUpdate = function(self, ...)
+		old_OnUpdate(self, ...)
+
+		if self:GetParent().inst.components.uianim.pos_t and self:GetParent().inst.components.uianim.pos_t > 0 then
+			self:RefreshView()
+		end
+	end
+
 	return grid
 end
 
-local function CreateMobCell(width, height)
+local function CreateMobCell(page, width, height)
+	local function ZoomScroll(mob, marker, scroll_line)
+		local scroll_line_pos = scroll_line:GetWorldPosition()
+		local scroll_line_w, scroll_line_h = scroll_line:GetScaledSize()
+
+		local start_y = scroll_line_pos.y + scroll_line_h/2 - 40
+		local end_y = scroll_line_pos.y - scroll_line_h/2 + 40
+
+		local scroll_value = math.clamp((TheFrontEnd.lasty - end_y)/(start_y - end_y), 0, 1)
+		marker:SetPosition(0, -scroll_line_h/2 + scroll_line_h*scroll_value)
+		marker:SetScale(0.3 + 0.6*scroll_value)
+
+		local mob_scale = page.current_mob_base_scale
+		mob:SetScale(mob_scale/2 + mob_scale*1.5*scroll_value)
+		page.mobinfo_root.mobinfopage.scrollarea:RefreshView() -- Sync up scissoring with scaling
+	end
+
 	local root = Widget("mob_cell_root")
 
 	local page_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_menu_block.tex"))
@@ -290,20 +304,44 @@ local function CreateMobCell(width, height)
 	root.mob_bg:SetScale(0.8, 1)
 
 	root.mob = root:AddChild(UIAnim())
-	root.mob:SetPosition(0, -170, 0)
+	root.mob:SetPosition(3, -50 - 120, 0)
 	root.mob:SetClickable(false)
 
 	local mobframe = root:AddChild(Image("images/bestiary_mobframe.xml", "bestiary_mobframe.tex"))
 	mobframe:SetPosition(0, -50, 0)
 	mobframe:SetScale(0.8, 1)
 
+	local mobbg_w, mobbg_h = root.mob_bg:GetScaledSize()
+	local zoom_scroll_bar = root:AddChild(Widget("zoom-scroll-bar-container"))
+	zoom_scroll_bar:SetPosition(mobbg_w/2 + 35, -50, 0)
+	local zoom_scroll_line = zoom_scroll_bar:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_bar.tex"))
+	root.zoom_scroll_marker = zoom_scroll_bar:AddChild(ImageButton("images/button_icons.xml", "circle.tex"))
+	root.zoom_scroll_marker.scale_on_focus = false
+	root.zoom_scroll_marker:SetOnDown(function()
+        TheFrontEnd:LockFocus(true)
+    end)
+    root.zoom_scroll_marker:SetWhileDown(function()
+		ZoomScroll(root.mob, root.zoom_scroll_marker, zoom_scroll_line)
+    end)
+    root.zoom_scroll_marker.OnLoseFocus = function()
+        -- Do nothing
+    end
+    root.zoom_scroll_marker.ResetPreClickPosition = function()
+        -- Do nothing
+    end
+    root.zoom_scroll_marker:SetOnClick(function()
+        TheFrontEnd:LockFocus(false)
+    end)
+
 	local w, h = page_decor:GetSize()
 	root.cell_height = h
 
 	local details_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_corner_decoration.tex"))
+	details_decor:SetClickable(false)
 	details_decor:SetPosition(-300, 200)
 	details_decor:SetScale(1, -1)
 	details_decor = root:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_corner_decoration.tex"))
+	details_decor:SetClickable(false)
 	details_decor:SetPosition(300, 200)
 	details_decor:SetScale(-1, -1)
 
@@ -330,7 +368,7 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	local max_visible_height = 1100
 	local section_space = 30
 	
-	local mob_cell = page_info:AddChild(CreateMobCell(width, height))
+	local mob_cell = page_info:AddChild(CreateMobCell(self, width, height))
 	mob_cell:SetPosition(width/2, height - mob_cell.cell_height/2 + 20, 0)
 	height = height - mob_cell.cell_height - section_space + 20
 
@@ -339,8 +377,6 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	decor_line:SetPosition(width/2, height + 30, 0)
 	decor_line:ScaleToSize(800, 5)
 	height = height - section_space + 30
-
-	-- Health Damage Speed --
 
 	local separation_dist = 233
 	local badge_size = 150
@@ -418,7 +454,12 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 		old_RefreshView(self)
 
 		local w, h = self.mob_cell.mob_bg:GetScaledSize()
-		self.mob_cell.mob:SetScissor(-w/2 + 3, -h/2 + 120, w, h)
+		local mob_scale, _, _ = self.mob_cell.mob:GetLooseScale()
+		mob_scale = 1/mob_scale
+
+		local sx, sy, sw, sh = (-w/2)*mob_scale, (-h/2 + 120)*mob_scale, w*mob_scale, h*mob_scale
+
+		self.mob_cell.mob:SetScissor(sx, sy, sw, sh)
 
 		-- for i = 1, self.items_per_view do
 		-- 	local cellimagew, cellimageh = self.widgets_to_update[i].cell_root.bg.image:GetSize()
@@ -451,6 +492,15 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 		-- 	end
 		-- end
 	end
+
+	local old_OnUpdate = self.mobinfo_root.mobinfopage.scrollarea.OnUpdate -- Fix scissoring
+	self.mobinfo_root.mobinfopage.scrollarea.OnUpdate = function(scrollarea_self, ...)
+		old_OnUpdate(scrollarea_self, ...)
+
+		if self.mobinfo_root.mobinfopage.inst.components.uianim.pos_t and self.mobinfo_root.mobinfopage.inst.components.uianim.pos_t > 0 then
+			scrollarea_self:RefreshView()
+		end
+	end
 end
 
 function BestiaryMonstersPage:OpenNewMobInfo(data)
@@ -477,6 +527,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 				end
 
 				self.mobinfo_root.mobinfopage.is_loading = false
+				self.mobinfo_root.mobinfopage.scrollarea:RefreshView()
 			end)
 		end)
 		
@@ -493,6 +544,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 		self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 150, 0, 0), 0.2)
 		self.mobinfo_root.mobinfopage:RotateTo(20, 0, 0.2, function()
 			self.mobinfo_root.mobinfopage.is_loading = false
+			self.mobinfo_root.mobinfopage.scrollarea:RefreshView()
 		end)
 
 		self.mobinfo_root.mobinfopage.is_loading = true
@@ -505,7 +557,25 @@ function BestiaryMonstersPage:UpdateMobInfo(data)
 	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(STRINGS.NAMES[string.upper(data.name)] or "Unknown", 1, 500, nil, nil, true)
 	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBank(data.bank)
 	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBuild(data.build)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.anim_idle, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.caught_anim, true)
+
+	local bb_x1, bb_y1, bb_x2, bb_y2 =  self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob.inst.AnimState:GetVisualBB()
+	local bb_w, bb_h = bb_x2 - bb_x1, bb_y2 - bb_y1
+	local bg_w, bg_h = self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob_bg:GetScaledSize()
+	local bb_scale = 1
+
+	if bb_w > bg_w or bb_h > bg_h then
+		if bb_h > bb_w then
+			bb_scale = bg_h/bb_h
+		else
+			bb_scale = bg_w/bb_w
+		end
+	end
+		
+	self.current_mob_base_scale = bb_scale
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:SetScale(bb_scale)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.zoom_scroll_marker:SetPosition(0, 0)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.zoom_scroll_marker:SetScale(0.6)
 
 	self.mobinfo_root.mobinfopage.scrollarea.health:SetMultilineTruncatedString(tostring(data.health), 1, 200, nil, nil, true)
 	self.mobinfo_root.mobinfopage.scrollarea.damage:SetMultilineTruncatedString(tostring(data.damage), 1, 200, nil, nil, true)
