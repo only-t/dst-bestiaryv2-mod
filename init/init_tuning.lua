@@ -58,6 +58,12 @@ local wilson_attack_period = 0.4
 
 	--- *** ---
 
-local TUNING = _G.TUNING
-
 TUNING.DISCOVER_MOB_RANGE = 7
+
+TUNING.SUPRISE_FISH_DISCOVER_RANGE = 20
+TUNING.SUPRISE_FISH_SPAWN_CHANCE = 0.05
+TUNING.SUPRISE_FISH_WORLD_AGE_DELAY = 10
+TUNING.SUPRISE_FISH_SPAWN_DELAY = {
+    min = 4*seg_time,
+    max = total_day_time/2,
+}

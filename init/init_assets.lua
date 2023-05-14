@@ -25,6 +25,11 @@ Assets = {
 
 	Asset("ATLAS", "images/mobinfopage.xml"),
 	Asset("IMAGE", "images/mobinfopage.tex"),
+
+	Asset("ANIM", "anim/fish_shadow1.zip"),
+
+	Asset("SOUNDPACKAGE", "sound/fish_shadow1.fev"),
+	Asset("SOUND", "sound/fish_shadow1.fsb")
 }
 
  -- Load in base game assets for mobs for usage in the compendium

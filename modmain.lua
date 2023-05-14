@@ -6,6 +6,7 @@ GLOBAL.setfenv(1, env)
 modimport("init/init_assets")
 modimport("init/init_strings")
 modimport("init/init_tuning")
+modimport("init/init_prefabs")
 
 --/\ INIT /\--
 
@@ -19,10 +20,12 @@ modimport("scripts/bestiaryrpcs")
 --/\ EXTERNAL CODE /\--
 
 require("debugkeys")
+_G.CHEATS_ENABLED = true
+_G.BESTIARYMODROOTFOLDER = MODROOT
 
 _G.global("TheBestiary")
 _G.TheBestiary = require("bestiarydata")()
-_G.TheBestiary:Load()
+_G.TheBestiary:ReadBestiaryData()
 
 local function OnPlayerActivated(inst)
 	if not _G.TheNet:IsDedicated() and inst == _G.ThePlayer then
@@ -38,4 +41,13 @@ AddPlayerPostInit(function(inst)
     end
 
     inst:AddComponent("bestiaryuser")
+    inst.components.bestiaryuser:OnLoad()
+end)
+
+AddPrefabPostInit("forest", function(inst)
+    if not inst.ismastersim then
+        return
+    end
+
+    inst:AddComponent("suprisefishspawner")
 end)
