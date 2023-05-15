@@ -3,17 +3,17 @@
     <Texture filename="bestiary_mobinfo_bg.tex"/>
     <Elements>
         <Element name="basic_unknown.tex" u1="0" u2="0.166341" v1="0.32549" v2="0.658824"/>
-        <Element name="secret_amogus.tex" u1="0.133072" u2="0.238748" v1="0.0666667" v2="0.321569"/>
-        <Element name="secret_deerclops.tex" u1="0.168297" u2="0.299413" v1="0.407843" v2="0.658824"/>
-        <Element name="secret_face.tex" u1="0" u2="0.168297" v1="0.662745" v2="1"/>
-        <Element name="secret_glommer.tex" u1="0.240705" u2="0.363992" v1="0.160784" v2="0.403922"/>
-        <Element name="secret_mandrake.tex" u1="0.30137" u2="0.422701" v1="0.505882" v2="0.74902"/>
-        <Element name="secret_pigking.tex" u1="0.418787" u2="0.540117" v1="0.756863" v2="1"/>
-        <Element name="secret_potatocup.tex" u1="0.365949" u2="0.48728" v1="0.258824" v2="0.501961"/>
-        <Element name="secret_skull.tex" u1="0.170254" u2="0.291585" v1="0.752941" v2="1"/>
-        <Element name="secret_spider.tex" u1="0.424658" u2="0.545988" v1="0.509804" v2="0.752941"/>
-        <Element name="secret_t.tex" u1="0" u2="0.131115" v1="0.0588235" v2="0.321569"/>
-        <Element name="secret_wx78.tex" u1="0.293542" u2="0.41683" v1="0.752941" v2="1"/>
+        <Element name="secret_1.tex" u1="0.133072" u2="0.238748" v1="0.0666667" v2="0.321569"/>
+        <Element name="secret_2.tex" u1="0.168297" u2="0.299413" v1="0.407843" v2="0.658824"/>
+        <Element name="secret_3.tex" u1="0" u2="0.168297" v1="0.662745" v2="1"/>
+        <Element name="secret_4.tex" u1="0.240705" u2="0.363992" v1="0.160784" v2="0.403922"/>
+        <Element name="secret_5.tex" u1="0.30137" u2="0.422701" v1="0.505882" v2="0.74902"/>
+        <Element name="secret_6.tex" u1="0.418787" u2="0.540117" v1="0.756863" v2="1"/>
+        <Element name="secret_7.tex" u1="0.365949" u2="0.48728" v1="0.258824" v2="0.501961"/>
+        <Element name="secret_8.tex" u1="0.170254" u2="0.291585" v1="0.752941" v2="1"/>
+        <Element name="secret_9.tex" u1="0.424658" u2="0.545988" v1="0.509804" v2="0.752941"/>
+        <Element name="secret_10.tex" u1="0" u2="0.131115" v1="0.0588235" v2="0.321569"/>
+        <Element name="secret_11.tex" u1="0.293542" u2="0.41683" v1="0.752941" v2="1"/>
     </Elements>
     <StraightAlpha>false</StraightAlpha>
 </Atlas>
