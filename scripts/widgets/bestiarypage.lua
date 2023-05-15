@@ -356,7 +356,7 @@ local function CreateMobCell(page, width, height)
 	return root
 end
 
-local function CreateMobPage(self) -- Work on proper scroll and display
+local function CreateMobPage(self)
 	self.mobinfo_root.mobinfopage = self.mobinfo_root:AddChild(Image("images/mobinfopage.xml", "mobinfopage.tex"))
 	self.mobinfo_root.mobinfopage:SetScale(0.68, 0.6)
 
@@ -407,25 +407,12 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	speed_value:SetPosition(width/2 + separation_dist, height - h/2, 0)
 	height = height - h - section_space
 
-	local filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
-	local w, h = filler:GetRegionSize()
-	filler:SetPosition(width/2, height - h/2, 0)
-	height = height - h - section_space
-
-	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
-	local w, h = filler:GetRegionSize()
-	filler:SetPosition(width/2, height - h/2, 0)
-	height = height - h - section_space
-
-	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
-	local w, h = filler:GetRegionSize()
-	filler:SetPosition(width/2, height - h/2, 0)
-	height = height - h - section_space
-
-	filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
-	local w, h = filler:GetRegionSize()
-	filler:SetPosition(width/2, height - h/2, 0)
-	height = height - h - section_space
+	for i = 1, 6 do
+		local filler = page_info:AddChild(Text(HEADERFONT, 96, "filler__", UICOLOURS.BROWN_DARK))
+		local w, h = filler:GetRegionSize()
+		filler:SetPosition(width/2, height - h/2, 0)
+		height = height - h - section_space
+	end
 
 	height = math.abs(height)
 	local top = math.min(height, max_visible_height)/2 - padding
@@ -453,47 +440,20 @@ local function CreateMobPage(self) -- Work on proper scroll and display
 	self.mobinfo_root.mobinfopage.scrollarea.RefreshView = function(self)
 		old_RefreshView(self)
 
+		local bg_y = self.mob_cell.mob_bg:GetWorldPosition().y
 		local w, h = self.mob_cell.mob_bg:GetScaledSize()
 		local mob_scale, _, _ = self.mob_cell.mob:GetLooseScale()
 		mob_scale = 1/mob_scale
 
-		local sx, sy, sw, sh = (-w/2)*mob_scale, (-h/2 + 120)*mob_scale, w*mob_scale, h*mob_scale
+		local scroll_cutoff_h = math.max(self.current_scroll_pos - 181, 0)
+		print(scroll_cutoff_h)
+
+		local sx, sy, sw, sh = (-w/2)*mob_scale, (-h/2 + 120)*mob_scale, w*mob_scale, (h - scroll_cutoff_h)*mob_scale
 
 		self.mob_cell.mob:SetScissor(sx, sy, sw, sh)
-
-		-- for i = 1, self.items_per_view do
-		-- 	local cellimagew, cellimageh = self.widgets_to_update[i].cell_root.bg.image:GetSize()
-		-- 	local scroll_percent = self.current_scroll_pos%1
-		-- 	local hoffset = 1 - math.clamp(scroll_percent + (-(1 - 1) + (1 - 1)*2*scroll_percent), 0, 1)
-
-		-- 	if i >= 1 and i <= 5 then
-		-- 		local x = -cellimagew/2
-		-- 		local y = -cellimageh/2
-		-- 		local w = cellimagew
-		-- 		local h = cellimageh*hoffset
-
-		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
-		-- 	elseif i >= 26 and i <= 30 then
-		-- 		local x = -cellimagew/2
-		-- 		local y = -cellimageh/2 + cellimageh*hoffset
-		-- 		local w = cellimagew
-		-- 		local h = cellimageh*(1 - hoffset)
-
-		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
-		-- 	elseif i >= 31 and i <= 35 and self.current_scroll_pos < self.end_pos - 1 then
-		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(0, 0, 0, 0)
-		-- 	else
-		-- 		local x = -cellimagew/2
-		-- 		local y = -cellimageh/2
-		-- 		local w = cellimagew
-		-- 		local h = cellimageh
-
-		-- 		self.widgets_to_update[i].cell_root.mob_root:SetScissor(x, y, w, h)
-		-- 	end
-		-- end
 	end
 
-	local old_OnUpdate = self.mobinfo_root.mobinfopage.scrollarea.OnUpdate -- Fix scissoring
+	local old_OnUpdate = self.mobinfo_root.mobinfopage.scrollarea.OnUpdate
 	self.mobinfo_root.mobinfopage.scrollarea.OnUpdate = function(scrollarea_self, ...)
 		old_OnUpdate(scrollarea_self, ...)
 
