@@ -1,18 +1,22 @@
 local Widget = require "widgets/widget"
 local Image = require "widgets/image"
 local ImageButton = require "widgets/imagebutton"
-local Text = require "widgets/text"
 
 local BestiaryButton = Class(Widget, function(self, owner)
     Widget._ctor(self, "BestiaryPopupScreen")
 
     self.owner = owner
+    self.onclick = function() self.button.onclick() end
+
+    self.bg = self:AddChild(Image("images/hud.xml", "craft_slot.tex"))
+    self.bg:SetScale(1, 1.6, 1)
+    self.bg:SetPosition(0, 20, 0)
 
     local scale = 0.4
 
     self.button = self:AddChild(ImageButton("images/bestiarybutton.xml", "button.tex", "buttonfocus.tex"))
     self.button:SetPosition(0, 30, 0)
-    self.button.image:SetScale(0.4)
+    self.button.image:SetScale(scale)
     self.button.normal_scale = { scale, scale, scale }
     self.button.focus_scale = { scale + 0.05, scale + 0.05, scale + 0.05 }
 
@@ -28,22 +32,17 @@ local BestiaryButton = Class(Widget, function(self, owner)
 
     self.button:SetOnClick(function()
         SendModRPCToServer(GetModRPC("󰀈 Bestiary 󰀈", "OpenBestiary"))
+
+        local act = BufferedAction(self.onwer, nil, ACTIONS.OPEN_BESTIARY)
+        self.owner.components.locomotor:PreviewAction(act, true)
     end)
-
-    self.banner = self:AddChild(Widget("banner"))
-    self.banner:SetScale(0.5, 0.5, 0.5)
-
-    self.banner.left = self.banner:AddChild(Image("images/crafting_menu.xml", "page_bg.tex"))
-    self.banner.left:SetScale(-1, 1, 1)
-
-    self.banner.right = self.banner:AddChild(Image("images/crafting_menu.xml", "page_bg.tex"))
-    self.banner.right:SetScale(1, 1, 1)
-
-    local w, h = self.banner.right:GetScaledSize()
-    self.banner.left:SetPosition(-w/2, 0, 0)
-    self.banner.right:SetPosition(w/2, 0, 0)
-
-    self.banner.text = self.banner:AddChild(Text(HEADERFONT, 36, "Bestiary", UICOLOURS.WHITE))
 end)
 
+function BestiaryButton:ShowBackground()
+    self.bg:Show()
+end
+
+function BestiaryButton:HideBackground()
+    self.bg:Hide()
+end
 return BestiaryButton
