@@ -1,6 +1,6 @@
 AddModRPCHandler("󰀈 Bestiary 󰀈", "OpenBestiary", function(player)
-    if player.sg and not player.sg:HasStateTag("busy") then
-        player.sg:GoToState("bestiary_open")
+    if player and (player.components.health == nil or not player.components.health:IsDead()) then
+        player.components.bestiaryuser:OpenBestiary()
     end
 end)
 

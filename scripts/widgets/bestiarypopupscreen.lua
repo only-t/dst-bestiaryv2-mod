@@ -26,8 +26,6 @@ local BestiaryPopupScreen = Class(Screen, function(self, owner)
 end)
 
 function BestiaryPopupScreen:OnDestroy()
-    TheBestiary:Save()
-    
     POPUPS.BESTIARY:Close(self.owner)
 
     local sw, sh = self.page:GetScaledSize()

@@ -1,5 +1,3 @@
-local inspect = require("inspect")
-
 local DUMMY_LootDropper = Class(function(self, inst) -- This is so I can replicate `lootsetupfn` and pull drops that get generated from it
     self.inst = inst                                 -- Remember to update it if Klei changes LootDropper
 
@@ -88,7 +86,6 @@ local BestiaryUser = Class(function(self, inst)
         end
 
         local x, y, z = inst.Transform:GetWorldPosition()
-        -- local ents = TheSim:FindEntities(x, y, z, TUNING.DISCOVER_MOB_RANGE, nil, CANT_DICOVERY_TAGS, ONEOF_DISCOVERY_TAGS)
         local ents = TheSim:FindEntities(x, y, z, TUNING.DISCOVER_MOB_RANGE, nil, CANT_DICOVERY_TAGS, ONEOF_DISCOVERY_TAGS)
 
         for i, ent in ipairs(ents) do
@@ -134,7 +131,7 @@ function BestiaryUser:DiscoverMob(mob)
     mob_data.bank = mob.AnimState:GetCurrentBankName()
     mob_data.build = mob.AnimState:GetBuild()
     mob_data.caught_anim = GetCaughtAnim(mob) or "idle" -- or "idle" is a last effort
-                                                            -- Save every encountered animation
+                                                            -- TODO Save every encountered animation
     local x1, y1, x2, y2 = mob.AnimState:GetVisualBB()
     mob_data.bb = { x1 = x1, y1 = y1, x2 = x2, y2 = y2 }
 
@@ -213,6 +210,11 @@ function BestiaryUser:DiscoverMob(mob)
     end
 end
 
+function BestiaryUser:OpenBestiary()
+    local act = BufferedAction(self.inst, nil, ACTIONS.OPEN_BESTIARY)
+    self.inst.components.locomotor:PushAction(act)
+end
+
 function BestiaryUser:PrintDebugString()
     for name, data in pairs(self.discovered_mobs) do
         print("-----")
@@ -232,7 +234,7 @@ function BestiaryUser:PrintDebugString()
     end
 end
 
--- function BestiaryUser:LearnMob(mob)
+-- function BestiaryUser:LearnMob(mob) -- TODO
 --     self.learned_mobs[mob.prefab] = {  }
 --     local data = self.learned_mobs[mob.prefab]
 

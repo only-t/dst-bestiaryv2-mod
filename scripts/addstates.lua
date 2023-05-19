@@ -1,38 +1,47 @@
 local State = _G.State
 local TimeEvent = _G.TimeEvent
 local EventHandler = _G.EventHandler
+local ActionHandler = _G.ActionHandler
+local ACTIONS = _G.ACTIONS
 local FRAMES = _G.FRAMES
+
+AddAction("OPEN_BESTIARY", "Read", function(act)
+	act.doer:ShowPopUp(_G.POPUPS.BESTIARY, true)
+	act.doer.SoundEmitter:PlaySound("dontstarve/common/use_book")
+    return true
+end)
 
 
 -- SERVER --
 
 local SGwilson = require("stategraphs/SGwilson")
 
+SGwilson.actionhandlers[ACTIONS.OPEN_BESTIARY] = ActionHandler(ACTIONS.OPEN_BESTIARY, function(inst)
+    if not inst.sg:HasStateTag("busy") and (inst.components.health == nil or not inst.components.health:IsDead()) then
+        return "bestiary_open"
+    end
+end)
+
 SGwilson.states["bestiary_open"] = State{
 	name = "bestiary_open",
 	tags = { "doing", "busy" },
 
 	onenter = function(inst)
-		inst.components.locomotor:StopMoving()
+		inst.components.locomotor:Stop()
+		inst.components.locomotor:Clear()
 		inst.AnimState:PlayAnimation("action_uniqueitem_pre")
-		inst.AnimState:OverrideSymbol("book_cook", "cookbook", "book_cook")
+		inst.AnimState:OverrideSymbol("book_cook", "bestiary_book", "bestiary_book")
 		inst.AnimState:PushAnimation("reading_in", false)
 		inst.AnimState:PushAnimation("reading_loop", true)
 	end,
 
 	timeline = {
 		TimeEvent(8*FRAMES, function(inst)
-			inst:ShowPopUp(_G.POPUPS.BESTIARY, true)
-			inst.SoundEmitter:PlaySound("dontstarve/common/use_book")
+			inst.sg:RemoveStateTag("busy")
+			inst:PerformBufferedAction()
 		end),
 	},
 
-	onupdate = function(inst)
-		if not _G.CanEntitySeeTarget(inst, inst) then
-			inst.sg:GoToState("bestiary_close")
-		end
-	end,
-	
 	events = {
 		EventHandler("ms_closepopup", function(inst, data)
 			if data.popup == _G.POPUPS.BESTIARY then
@@ -40,6 +49,12 @@ SGwilson.states["bestiary_open"] = State{
 			end
 		end)
 	},
+
+	onupdate = function(inst)
+		if not _G.CanEntitySeeTarget(inst, inst) then
+			inst.sg:GoToState("bestiary_close")
+		end
+	end,
 
 	onexit = function(inst)
 		inst:ShowPopUp(_G.POPUPS.BESTIARY, false)
@@ -51,7 +66,6 @@ SGwilson.states["bestiary_close"] = State{
 	tags = { "idle", "nodangle" },
 
 	onenter = function(inst)
-		inst.components.locomotor:StopMoving()
 		inst.SoundEmitter:PlaySound("dontstarve/common/use_book")
 		inst.AnimState:PlayAnimation("reading_pst")
 	end,
@@ -70,34 +84,15 @@ SGwilson.states["bestiary_close"] = State{
 
 local SGwilson_client = require("stategraphs/SGwilson_client")
 
-local TIMEOUT = 2
+SGwilson_client.actionhandlers[ACTIONS.OPEN_BESTIARY] = ActionHandler(ACTIONS.OPEN_BESTIARY, function(inst)
+    if not inst.sg:HasStateTag("busy") and (inst.replica.health == nil or not inst.replica.health:IsDead()) then
+        return "bestiary_open"
+    end
+end)
 
 SGwilson_client.states["bestiary_open"] = State{
 	name = "bestiary_open",
-	tags = { "doing", "busy" },
 	server_states = { "bestiary_open" },
-
-	onenter = function(inst)
-		inst.components.locomotor:Stop()
-		inst.AnimState:PlayAnimation("action_uniqueitem_pre")
-		inst.AnimState:PushAnimation("action_uniqueitem_lag", false)
-
-		inst:PerformPreviewBufferedAction()
-		inst.sg:SetTimeout(TIMEOUT)
-	end,
-
-	onupdate = function(inst)
-		if inst:HasTag("doing") then
-			if inst.entity:FlattenMovementPrediction() then
-				inst.sg:GoToState("idle", "noanim")
-			end
-		elseif inst.bufferedaction == nil then
-			inst.sg:GoToState("idle")
-		end
-	end,
-
-	ontimeout = function(inst)
-		inst:ClearBufferedAction()
-		inst.sg:GoToState("idle")
-	end,
+	forward_server_states = true,
+	onenter = function(inst) inst.sg:GoToState("action_uniqueitem_busy") end
 }
