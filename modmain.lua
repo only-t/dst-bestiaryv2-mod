@@ -19,8 +19,6 @@ modimport("scripts/bestiaryrpcs")
 
 --/\ EXTERNAL CODE /\--
 
-require("debugkeys")
-_G.CHEATS_ENABLED = true
 _G.BESTIARYMODROOTFOLDER = MODROOT
 
 _G.global("TheBestiary")

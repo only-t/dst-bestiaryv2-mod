@@ -28,6 +28,8 @@ Assets = {
 
 	Asset("ANIM", "anim/fish_shadow1.zip"),
 
+	Asset("ANIM", "anim/bestiary_book.zip"),
+
 	Asset("SOUNDPACKAGE", "sound/fish_shadow1.fev"),
 	Asset("SOUND", "sound/fish_shadow1.fsb")
 }

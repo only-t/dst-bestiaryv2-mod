@@ -19,7 +19,7 @@ end
 local function DiscoverBestiaryEntry(inst)
     for i, player in ipairs(inst.discover_list) do
         TheNet:Announce(player.prefab)
-        -- Discover hidden bestiary entry : TODO
+        -- TODO Discover hidden bestiary entry
     end
 end
 

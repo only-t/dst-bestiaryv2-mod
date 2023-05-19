@@ -290,7 +290,7 @@ local function CreateMobCell(page, width, height)
 
 		local mob_scale = page.current_mob_base_scale
 		mob:SetScale(mob_scale/2 + mob_scale*1.5*scroll_value)
-		page.mobinfo_root.mobinfopage.scrollarea:RefreshView() -- Sync up scissoring with scaling
+		page.mobinfo_root.mobinfopage.scrollarea:RefreshView()
 	end
 
 	local root = Widget("mob_cell_root")
@@ -436,7 +436,7 @@ local function CreateMobPage(self)
 	self.mobinfo_root.mobinfopage.scrollarea.damage = damage_value
 	self.mobinfo_root.mobinfopage.scrollarea.speed = speed_value
 
-	local old_RefreshView = self.mobinfo_root.mobinfopage.scrollarea.RefreshView -- Fix scissoring
+	local old_RefreshView = self.mobinfo_root.mobinfopage.scrollarea.RefreshView
 	self.mobinfo_root.mobinfopage.scrollarea.RefreshView = function(self)
 		old_RefreshView(self)
 
@@ -469,7 +469,7 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 	end
 
 	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn") -- Only works if not auto-paused, for some reason °_o
-
+																					-- TODO Find a fix for this (if there even is any)
 	if self.mobinfo_root.mobinfopage then
 		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()

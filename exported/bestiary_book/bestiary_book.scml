@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<spriter_data scml_version="1.0" generator="BrashMonkey Spriter" generator_version="r11">
+    <folder id="0" name="bestiary_book">
+        <file id="0" name="bestiary_book/bestiary_book-0.png" width="195" height="109" pivot_x="0.485128" pivot_y="0.460092"/>
+        <file id="1" name="bestiary_book/bestiary_book-1.png" width="111" height="150" pivot_x="0.619144" pivot_y="0.314833"/>
+        <file id="2" name="bestiary_book/bestiary_book-2.png" width="118" height="128" pivot_x="0.703814" pivot_y="0.418359"/>
+    </folder>
+    <entity id="0" name="bestiary_book">
+        <animation id="0" name="none" length="300" interval="100">
+            <mainline>
+                <key id="0"/>
+            </mainline>
+            <timeline id="0" name="bestiary_book">
+                <key id="0" spin="0">
+                    <object folder="0" file="0" x="-0.2" y="27.1" angle="0"/>
+                </key>
+            </timeline>
+        </animation>
+    </entity>
+</spriter_data>
