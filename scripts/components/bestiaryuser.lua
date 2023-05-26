@@ -80,7 +80,7 @@ local BestiaryUser = Class(function(self, inst)
     self.discovered_mobs = {  }
     self.learned_mobs = {  }
 
-    self.discover_task = self.inst:DoPeriodicTask(1, function(inst)
+    self.discover_task = self.inst:DoPeriodicTask(0.25, function(inst)
         if inst:HasTag("playerghost") or inst:HasTag("corpse") then
             return
         end
@@ -120,18 +120,28 @@ function BestiaryUser:OnRemoveFromEntity()
 end
 
 function BestiaryUser:DiscoverMob(mob)
-    if mob == nil or type(mob) ~= "table" or self.discovered_mobs[mob.prefab] then
+    if mob == nil or type(mob) ~= "table" then
+        return
+    end
+
+    if self.discovered_mobs[mob.prefab] then
+        local caught_anim_name = GetCaughtAnim(mob)
+
+        if not self.discovered_mobs[mob.prefab].anims[caught_anim_name] then
+            self.discovered_mobs[mob.prefab].anims[caught_anim_name] = true
+        end
+
         return
     end
     
-    self.discovered_mobs[mob.prefab] = { name = mob.prefab }
+    self.discovered_mobs[mob.prefab] = { name = mob:GetBasicDisplayName() }
     
     local mob_data = self.discovered_mobs[mob.prefab]
 
     mob_data.bank = mob.AnimState:GetCurrentBankName()
     mob_data.build = mob.AnimState:GetBuild()
-    mob_data.caught_anim = GetCaughtAnim(mob) or "idle" -- or "idle" is a last effort
-                                                            -- TODO Save every encountered animation
+    mob_data.anims = {  }
+    mob_data.anims[(GetCaughtAnim(mob) or "idle")] = true -- or "idle" is a last effort
     local x1, y1, x2, y2 = mob.AnimState:GetVisualBB()
     mob_data.bb = { x1 = x1, y1 = y1, x2 = x2, y2 = y2 }
 
@@ -216,12 +226,16 @@ function BestiaryUser:OpenBestiary()
 end
 
 function BestiaryUser:PrintDebugString()
-    for name, data in pairs(self.discovered_mobs) do
+    for prefab, data in pairs(self.discovered_mobs) do
         print("-----")
-        print("Name: "..name)
+        print("Prefab: "..prefab)
+        print("Display name: "..data.name)
         print("Bank: "..(data.bank or "nil"))
         print("Build: "..(data.build or "nil"))
-        print("Caught animation: "..(data.caught_anim or "nil"))
+        print("Animations: ")
+        for animname, _ in pairs(data.anims) do
+            print("  "..animname)
+        end
         print("Health: "..(data.health or "nil"))
         print("Damage: "..(data.damage or "nil"))
         print("Walking speed: "..(data.walkspeed or "nil"))
@@ -230,6 +244,8 @@ function BestiaryUser:PrintDebugString()
         print("Is hostile: "..(data.ishostile and "true" or "false"))
         print("Can swim: "..(data.canswim and "true" or "false"))
         print("Is flying: "..(data.isflying and "true" or "false"))
+        print("-")
+        print("Learned: "..(self.learned_mobs[name] and "true" or "false"))
         print("-----")
     end
 end

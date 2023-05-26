@@ -87,7 +87,6 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 			if w.cell_root.bg.pointer == nil then
 				w.cell_root.bg.pointer = w.cell_root.bg:AddChild(Image("images/bestiary_pointer.xml", "bestiary_pointer.tex"))
 				w.cell_root.bg.pointer:SetScale(1.3, 1.3)
-				w.cell_root.bg.pointer:SetRotation(130)
 
 				w.cell_root.bg.pointer:MoveTo(Vector3(70, -80, 0), Vector3(50, -60, 0), 0.1)
 				w.cell_root.bg.pointer:RotateTo(130, 110, 0.1)
@@ -96,6 +95,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 				w.cell_root.bg.pointer:CancelMoveTo()
 				w.cell_root.bg.pointer:CancelRotateTo()
 				w.cell_root.bg.pointer:CancelTintTo()
+
 				w.cell_root.bg.pointer:MoveTo(w.cell_root.bg.pointer:GetPosition(), Vector3(50, -60, 0), 0.1)
 				w.cell_root.bg.pointer:RotateTo(130, 110, 0.1)
 				w.cell_root.bg.pointer:TintTo({ r = 1, g = 1, b = 1, a = 0 }, { r = 1, g = 1, b = 1, a = 1 }, 0.1)
@@ -104,7 +104,9 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 		w.cell_root.bg:SetOnLoseFocus(function()
 			if w.data then
-				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(w.data.caught_anim, true)
+				local animname, _ = next(w.data.anims)
+
+				w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(animname, true)
 				w.cell_root.mob_root.mob:GetAnimState():Pause()
 			end
 
@@ -147,10 +149,12 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 		if w.data then
 			w.cell_root.bg:Show()
 			w.cell_root.mob_root.mob:Show()
+			
+			local animname, _ = next(w.data.anims)
 
 			w.cell_root.mob_root.mob:GetAnimState():SetBank(data.bank)
 			w.cell_root.mob_root.mob:GetAnimState():SetBuild(data.build)
-			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(data.caught_anim, true)
+			w.cell_root.mob_root.mob:GetAnimState():PlayAnimation(animname, true)
 			w.cell_root.mob_root.mob:GetAnimState():Pause()
 
 			local bb_x1, bb_y1, bb_x2, bb_y2 =  w.cell_root.mob_root.mob.inst.AnimState:GetVisualBB()
@@ -214,7 +218,7 @@ function BestiaryMonstersPage:CreateMonsterGrid()
 
 	grid.position_marker:SetTextures("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
 	grid.position_marker.image:SetTexture("images/quagmire_recipebook.xml", "quagmire_recipe_scroll_handle.tex")
-	grid.position_marker:SetScale(1)
+	grid.position_marker:SetScale(1, 1)
 
 	local grid_w, grid_h = grid:GetScrollRegionSize()
 	local grid_boarder = grid:AddChild(Image("images/quagmire_recipebook.xml", "quagmire_recipe_line.tex"))
@@ -446,8 +450,6 @@ local function CreateMobPage(self)
 		mob_scale = 1/mob_scale
 
 		local scroll_cutoff_h = math.max(self.current_scroll_pos - 181, 0)
-		print(scroll_cutoff_h)
-
 		local sx, sy, sw, sh = (-w/2)*mob_scale, (-h/2 + 120)*mob_scale, w*mob_scale, (h - scroll_cutoff_h)*mob_scale
 
 		self.mob_cell.mob:SetScissor(sx, sy, sw, sh)
@@ -471,14 +473,13 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 	TheFocalPoint.SoundEmitter:PlaySound("dontstarve/characters/actions/page_turn") -- Only works if not auto-paused, for some reason °_o
 																					-- TODO Find a fix for this (if there even is any)
 	if self.mobinfo_root.mobinfopage then
-		local rot = self.mobinfo_root.mobinfopage.inst.UITransform:GetRotation()
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
 		self.mobinfo_root.mobinfopage:MoveTo(Vector3(-pagew/2 + 150, 0, 0), Vector3(pagew, 0, 0), 0.2)
-		self.mobinfo_root.mobinfopage:RotateTo(rot, 20, 0.2, function()
+		self.mobinfo_root.mobinfopage:RotateTo(0, 20, 0.2, function()
 			self:UpdateMobInfo(data)
 
-			self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 140, 0, 0), 0.2)
+			self.mobinfo_root.mobinfopage:MoveTo(Vector3(pagew, 0, 0), Vector3(-pagew/2 + 150, 0, 0), 0.2)
 			self.mobinfo_root.mobinfopage:RotateTo(20, 0, 0.2, function()
 				if math.random() <= 0.02 then
 					self.mobinfo_root.bg_decor:SetTexture("images/bestiary_mobinfo_bg.xml", "secret_"..math.random(11)..".tex")
@@ -494,10 +495,9 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 		self.mobinfo_root.mobinfopage.is_loading = true
 
 		return
-	end
-
-	if self.mobinfo_root.mobinfopage == nil then
+	else
 		CreateMobPage(self)
+		self:UpdateMobInfo(data)
 
 		local pagew, pageh = self.mobinfo_root.mobinfopage:GetSize()
 
@@ -508,16 +508,16 @@ function BestiaryMonstersPage:OpenNewMobInfo(data)
 		end)
 
 		self.mobinfo_root.mobinfopage.is_loading = true
-
-		self:UpdateMobInfo(data)
 	end
 end
 
 function BestiaryMonstersPage:UpdateMobInfo(data)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(STRINGS.NAMES[string.upper(data.name)] or "Unknown", 1, 500, nil, nil, true)
+	local animname, _ = next(data.anims)
+
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mobname:SetMultilineTruncatedString(data.name or "Unknown", 1, 500, nil, nil, true)
 	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBank(data.bank)
 	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():SetBuild(data.build)
-	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(data.caught_anim, true)
+	self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob:GetAnimState():PlayAnimation(animname, true)
 
 	local bb_x1, bb_y1, bb_x2, bb_y2 =  self.mobinfo_root.mobinfopage.scrollarea.mob_cell.mob.inst.AnimState:GetVisualBB()
 	local bb_w, bb_h = bb_x2 - bb_x1, bb_y2 - bb_y1

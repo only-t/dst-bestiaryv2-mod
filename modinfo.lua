@@ -4,7 +4,7 @@ description = [[The Bestiary adds a new book to Don't Starve Together with all t
 Bestiary book sprite by Miz Artz.
 
 Current version: 2.0.0 󰀔
-- ONLY IF [API] Mods In Menu IS ENABLED: Added the Bestiary to the main manu (located in the Compendium)
+ - ONLY IF [API] Mods In Menu IS ENABLED: Added the Bestiary to the main manu (located in the Compendium)
 ]]
 author = "-т-"
 version = "2.0.0"

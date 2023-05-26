@@ -43,10 +43,14 @@ end
 function BestiaryData:PrintDebugString()
     for name, data in pairs(self.discovered_mobs) do
         print("-----")
-        print("Name: "..name)
+        print("Prefab: "..prefab)
+        print("Display name: "..data.name)
         print("Bank: "..(data.bank or "nil"))
         print("Build: "..(data.build or "nil"))
-        print("Idle animation: "..(data.anim_idle or "nil"))
+        print("Animations: ")
+        for animname, _ in pairs(data.anims) do
+            print("  "..animname)
+        end
         print("Health: "..(data.health or "nil"))
         print("Damage: "..(data.damage or "nil"))
         print("Walking speed: "..(data.walkspeed or "nil"))
@@ -55,6 +59,8 @@ function BestiaryData:PrintDebugString()
         print("Is hostile: "..(data.ishostile and "true" or "false"))
         print("Can swim: "..(data.canswim and "true" or "false"))
         print("Is flying: "..(data.isflying and "true" or "false"))
+        print("-")
+        print("Learned: "..(self.learned_mobs[name] and "true" or "false"))
         print("-----")
     end
 end
